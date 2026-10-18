@@ -4,4 +4,6 @@ project(halloween_station)
 
 target_sources(app PRIVATE
     src/main.c
+    ../common/fota.c
 )
+target_include_directories(app PRIVATE ../common)

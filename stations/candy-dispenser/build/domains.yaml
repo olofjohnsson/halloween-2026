@@ -1,7 +1,0 @@
-default: candy-dispenser
-build_dir: /home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build
-domains:
-  - name: candy-dispenser
-    build_dir: /home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser
-flash_order:
-  - candy-dispenser

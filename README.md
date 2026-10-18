@@ -30,7 +30,7 @@ From the NCS toolchain environment:
 ```sh
 # A station (repeat with station_1.conf ... station_5.conf)
 cd stations
-west build -b pro-micro/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_1.conf
+west build -b promicro_nrf52840/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_1.conf
 west flash
 
 # The candy dispenser
@@ -40,6 +40,12 @@ west flash
 ```
 
 See the folder READMEs for pin assignments, wiring notes, and troubleshooting.
+
+## Firmware updates (FOTA)
+
+All boards run MCUboot and can be updated over BLE from a phone with the nRF Connect Device
+Manager app. The first flash of each board is over SWD; after that, upload the
+`build/dfu_application.zip` from the build. Details are in the folder READMEs.
 
 ## Status
 

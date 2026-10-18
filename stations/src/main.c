@@ -14,6 +14,8 @@
 #include <zephyr/random/random.h>
 #include <zephyr/logging/log.h>
 
+#include "fota.h"
+
 LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
 
 #if !defined(CONFIG_HALLOWEEN_STATION_ID)
@@ -332,7 +334,7 @@ static void update_beacon(uint8_t type, uint8_t target, uint32_t value)
     service_data[11] = (uint8_t)((value >> 8) & 0xff);
     service_data[12] = (uint8_t)((value >> 16) & 0xff);
 
-    int rc = bt_le_adv_update_data(ad, ARRAY_SIZE(ad), NULL, 0);
+    int rc = fota_adv_update(ad, ARRAY_SIZE(ad));
     if (rc < 0) {
         LOG_ERR("Updating BLE beacon failed: %d", rc);
     } else {
@@ -695,11 +697,14 @@ int main(void)
         return 0;
     }
 
-    rc = bt_le_adv_start(BT_LE_ADV_NCONN, ad, ARRAY_SIZE(ad), NULL, 0);
+    static const char fota_name[] = "HW-Station" STRINGIFY(STATION_ID);
+
+    rc = fota_adv_start(ad, ARRAY_SIZE(ad), fota_name);
     if (rc < 0) {
         LOG_ERR("BLE advertising start failed: %d", rc);
         return 0;
     }
+    fota_confirm_image();
 
     rc = bt_le_scan_start(BT_LE_SCAN_ACTIVE, device_found);
     if (rc < 0) {

@@ -10,6 +10,8 @@
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/logging/log.h>
 
+#include "fota.h"
+
 LOG_MODULE_REGISTER(candy, LOG_LEVEL_INF);
 
 /* Protocol shared with the stations (see ../stations/src/main.c). */
@@ -76,7 +78,7 @@ static void set_beacon(uint8_t type, uint8_t target, uint16_t session)
     service_data[11] = 0;
     service_data[12] = 0;
 
-    int rc = bt_le_adv_update_data(ad, ARRAY_SIZE(ad), NULL, 0);
+    int rc = fota_adv_update(ad, ARRAY_SIZE(ad));
     if (rc < 0) {
         LOG_ERR("Updating BLE beacon failed: %d", rc);
     }
@@ -196,11 +198,12 @@ int main(void)
     }
 
     set_beacon(MSG_IDLE, 0, 0);
-    rc = bt_le_adv_start(BT_LE_ADV_NCONN, ad, ARRAY_SIZE(ad), NULL, 0);
+    rc = fota_adv_start(ad, ARRAY_SIZE(ad), "HW-Candy");
     if (rc < 0) {
         LOG_ERR("BLE advertising start failed: %d", rc);
         return 0;
     }
+    fota_confirm_image();
 
     rc = bt_le_scan_start(BT_LE_SCAN_ACTIVE, device_found);
     if (rc < 0) {

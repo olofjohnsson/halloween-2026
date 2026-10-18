@@ -8,7 +8,7 @@ Prototype firmware for five Pro Micro nRF52840 stations. Each station has:
 
 ## Important hardware note
 
-`boards/pro-micro-nrf52840.overlay` uses example GPIO numbers:
+`boards/promicro_nrf52840_nrf52840.overlay` uses example GPIO numbers:
 - buttons: P0.02, P0.03, P0.04
 - LED MOSFET control: P0.05
 
@@ -19,13 +19,29 @@ Verify that these pins are exposed and unused on your exact Pro Micro board. The
 From the NCS 3.4.0 toolchain environment, with this board target available:
 
 ```sh
-west build -b pro-micro/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_1.conf
+west build -b promicro_nrf52840/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_1.conf
 west flash
 ```
+
+The first flash of a board must be done over SWD (`west flash`), because it installs MCUboot. This replaces the Adafruit UF2 bootloader that Pro Micro boards ship with. Build with `promicro_nrf52840/nrf52840` (not the `/uf2` variant). After that, update over the air, see [FOTA](#fota-over-the-air-updates).
 
 For stations 2 through 5, use the corresponding `station_N.conf` file. Build each image separately.
 
 If your board target is named differently in your board package, use the exact target shown by `west boards`.
+
+## FOTA (over-the-air updates)
+
+Every station can be updated from a phone with the **nRF Connect Device Manager** app (MCUboot + MCUmgr SMP over BLE).
+
+1. Build the station as above. The signed update package is `build/dfu_application.zip`. Copy it to the phone.
+2. In nRF Connect Device Manager, find `HW-StationN` (N is the station ID), tap it, and open the **Image** tab.
+3. Select the zip and tap **Start**. Any upload mode works.
+4. The station reboots into the new image and confirms it automatically once Bluetooth is up. If the new image fails to start, MCUboot reverts to the previous one.
+
+Notes:
+- The device is always connectable, so no button press is needed. While a phone is connected the station pauses its game beacon, so update stations outside a running game.
+- The SMP service is unauthenticated. MCUboot only accepts images signed with the project key, but the default key in the SDK is public. For anything beyond a family game, set your own key with `SB_CONFIG_BOOT_SIGNATURE_KEY_FILE` in `sysbuild.conf` and keep it out of git.
+- The station firmware is in `src/main.c`; the shared FOTA code is in `../common/`.
 
 ## Protocol
 

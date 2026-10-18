@@ -60,9 +60,18 @@ for normal operation.
 
 ## Pro Micro nRF52840 (alternative)
 ```sh
-west build -b pro-micro/nrf52840 -p always .
+west build -b promicro_nrf52840/nrf52840 -p always .
 ```
-Example pin (verify against your board): candy driver P0.10.
+Example pin (verify against your board): candy driver P0.10. The first flash goes over
+SWD and replaces the UF2 bootloader with MCUboot (see the stations README).
+
+## FOTA (over-the-air updates)
+The dispenser is updated from the **nRF Connect Device Manager** app in the same way as
+the stations: copy `build/dfu_application.zip` to the phone, connect to `HW-Candy`, and
+upload it on the Image tab. Only the application core image is updated; the BLE
+network-core image is not part of the update. The new image confirms itself after boot,
+otherwise MCUboot reverts. The game beacon pauses while a phone is connected. See the
+stations README for the security notes.
 
 ## BLE protocol
 Same as the stations (16-bit service data UUID `0xFFF0`, magic `HW`, version 1).
