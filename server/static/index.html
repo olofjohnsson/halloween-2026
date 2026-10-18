@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Halloween 2026 - Candy Dispenser</title>
+<style>
+body{background:#111;color:#ff7518;font-family:sans-serif;text-align:center;padding-top:10vh}
+#count{font-size:12rem;margin:0}small{color:#888}
+</style></head><body>
+<h1>🎃 Candy dispensed</h1>
+<p id="count">–</p>
+<small id="last"></small>
+<script>
+async function update(){
+  try{
+    const r=await fetch('/api/count');const d=await r.json();
+    document.getElementById('count').textContent=d.count;
+    document.getElementById('last').textContent=d.last?'Last: '+d.last:'';
+  }catch(e){}
+}
+update();setInterval(update,3000);
+</script></body></html>

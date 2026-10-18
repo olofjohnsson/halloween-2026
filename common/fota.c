@@ -2,13 +2,34 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/bluetooth/conn.h>
-#include <zephyr/dfu/mcuboot.h>
 #include <zephyr/logging/log.h>
-#include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
 
 #include "fota.h"
 
 LOG_MODULE_REGISTER(fota, LOG_LEVEL_INF);
+
+#if !defined(CONFIG_MCUMGR_TRANSPORT_BT)
+
+/* Boards without FOTA (the Wi-Fi candy dispenser does not fit MCUboot) only broadcast the beacon. */
+int fota_adv_start(const struct bt_data *ad, size_t ad_len, const char *name)
+{
+    ARG_UNUSED(name);
+    return bt_le_adv_start(BT_LE_ADV_NCONN, ad, ad_len, NULL, 0);
+}
+
+int fota_adv_update(const struct bt_data *ad, size_t ad_len)
+{
+    return bt_le_adv_update_data(ad, ad_len, NULL, 0);
+}
+
+void fota_confirm_image(void)
+{
+}
+
+#else
+
+#include <zephyr/dfu/mcuboot.h>
+#include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
 
 /* Scan response: 18 byte UUID + 2 byte header + name must fit in 31 bytes. */
 #define FOTA_NAME_MAX 11
@@ -109,3 +130,5 @@ void fota_confirm_image(void)
         LOG_INF("New firmware image confirmed");
     }
 }
+
+#endif

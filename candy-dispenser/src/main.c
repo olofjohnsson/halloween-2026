@@ -11,6 +11,7 @@
 #include <zephyr/logging/log.h>
 
 #include "fota.h"
+#include "report.h"
 
 LOG_MODULE_REGISTER(candy, LOG_LEVEL_INF);
 
@@ -33,7 +34,7 @@ LOG_MODULE_REGISTER(candy, LOG_LEVEL_INF);
 #define DISC_HOME_TIMEOUT_MS 10000
 
 /* Set to 1 to run only the disc test (driver runs until the switch, repeat). */
-#define DISC_TEST 0
+#define DISC_TEST 1
 
 static const struct gpio_dt_spec actuator =
     GPIO_DT_SPEC_GET(DT_NODELABEL(candy_actuator), gpios);
@@ -211,6 +212,7 @@ int main(void)
         return 0;
     }
 
+    report_init();
     LOG_INF("Candy dispenser ready");
 
     while (1) {
@@ -226,6 +228,7 @@ int main(void)
             LOG_INF("Release requested (session=%u)", req.session);
             release_candy();
             last_released_session = req.session;
+            report_dispense(req.session);
             set_beacon(MSG_CANDY_DONE, LAST_STATION_ID, req.session);
             LOG_INF("Candy released; confirmation advertised");
         }

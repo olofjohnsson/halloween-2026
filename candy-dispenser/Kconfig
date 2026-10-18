@@ -1,0 +1,38 @@
+menu "Candy dispenser reporting"
+
+config HALLOWEEN_WIFI_SSID
+    string "Wi-Fi SSID"
+    default ""
+    help
+      Leave empty to disable reporting. Set it in the git-ignored
+      wifi_secrets.conf (see wifi_secrets.conf.example).
+
+config HALLOWEEN_WIFI_PASSWORD
+    string "Wi-Fi password (WPA2/WPA3-Personal, empty for an open network)"
+    default ""
+
+config HALLOWEEN_REPORT_HOST
+    string "Dispense counter server host or IPv4 address"
+    default ""
+
+config HALLOWEEN_REPORT_PORT
+    int "Dispense counter server TCP port"
+    default 8080
+
+config HALLOWEEN_REPORT_PATH
+    string "HTTP path that receives dispense events"
+    default "/api/dispense"
+
+config HALLOWEEN_REPORT_API_KEY
+    string "API key sent in the X-API-Key header"
+    default ""
+
+config HALLOWEEN_REPORT_TEST
+    bool "Report test mode: send a fake dispense event every second"
+    help
+      Exercises the Wi-Fi/web server flow without releasing candy. Keep off
+      for normal operation.
+
+endmenu
+
+source "Kconfig.zephyr"

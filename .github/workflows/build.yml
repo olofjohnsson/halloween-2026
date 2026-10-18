@@ -60,10 +60,15 @@ jobs:
         run: |
           mkdir -p out/for-flashing out/for-FOTA
           cd "build/${{ matrix.name }}"
-          cp dfu_application.zip "$GITHUB_WORKSPACE/out/for-FOTA/${{ matrix.name }}-dfu.zip"
-          cp mcuboot/zephyr/zephyr.hex "$GITHUB_WORKSPACE/out/for-flashing/${{ matrix.name }}-mcuboot.hex"
-          cp "${{ matrix.app }}/zephyr/zephyr.signed.hex" "$GITHUB_WORKSPACE/out/for-flashing/${{ matrix.name }}-app.signed.hex"
-
+          if [ "${{ matrix.name }}" = "candy-dispenser" ]; then
+            # No MCUboot/FOTA on the dispenser: flash both cores
+            cp candy-dispenser/zephyr/zephyr.hex "$GITHUB_WORKSPACE/out/for-flashing/${{ matrix.name }}-app.hex"
+            cp ipc_radio/zephyr/zephyr.hex "$GITHUB_WORKSPACE/out/for-flashing/${{ matrix.name }}-netcore.hex"
+          else
+            cp dfu_application.zip "$GITHUB_WORKSPACE/out/for-FOTA/${{ matrix.name }}-dfu.zip"
+            cp mcuboot/zephyr/zephyr.hex "$GITHUB_WORKSPACE/out/for-flashing/${{ matrix.name }}-mcuboot.hex"
+            cp "${{ matrix.app }}/zephyr/zephyr.signed.hex" "$GITHUB_WORKSPACE/out/for-flashing/${{ matrix.name }}-app.signed.hex"
+          fi
       # Intermediate artifact, only used by the package job below
       - uses: actions/upload-artifact@v4
         with:

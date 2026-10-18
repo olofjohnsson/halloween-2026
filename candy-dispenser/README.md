@@ -65,13 +65,9 @@ west build -b promicro_nrf52840/nrf52840 -p always .
 Example pin (verify against your board): candy driver P0.10. The first flash goes over
 SWD and replaces the UF2 bootloader with MCUboot (see the stations README).
 
-## FOTA (over-the-air updates)
-The dispenser is updated from the **nRF Connect Device Manager** app in the same way as
-the stations: copy `build/dfu_application.zip` to the phone, connect to `HW-Candy`, and
-upload it on the Image tab. Only the application core image is updated; the BLE
-network-core image is not part of the update. The new image confirms itself after boot,
-otherwise MCUboot reverts. The game beacon pauses while a phone is connected. See the
-stations README for the security notes.
+## No FOTA on the dispenser
+The Wi-Fi firmware is too large for an MCUboot slot on the nRF5340, so the dispenser is
+flashed over USB/J-Link (`west flash`) and has no BLE FOTA. The stations still use FOTA.
 
 ## BLE protocol
 Same as the stations (16-bit service data UUID `0xFFF0`, magic `HW`, version 1).
@@ -83,3 +79,11 @@ security system.
 ## Prototype limitations
 - Not yet built against the exact board packages or tested with the physical hardware.
 - Anyone with a BLE transmitter could send a release request.
+
+## Reporting dispense counts
+
+The nRF7002 DK posts every released candy over Wi-Fi to the web server in `../server`.
+Copy `wifi_secrets.conf.example` to `wifi_secrets.conf` (git-ignored) and fill in Wi-Fi and server settings; without it the build works but does not report.
+
+### Report test mode
+Add `CONFIG_HALLOWEEN_REPORT_TEST=y` to `wifi_secrets.conf` and rebuild: the dispenser then posts a fake dispense to the server every second (session 0), without releasing candy. Remove it for normal use.
