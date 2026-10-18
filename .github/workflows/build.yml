@@ -60,7 +60,10 @@ jobs:
         run: |
           mkdir -p out
           cd "build/${{ matrix.name }}"
-          cp dfu_application.zip merged.hex "$GITHUB_WORKSPACE/out/" 
+          # dfu_application.zip is for FOTA; the hex files are for the first SWD flash
+          cp dfu_application.zip "$GITHUB_WORKSPACE/out/"
+          cp mcuboot/zephyr/zephyr.hex "$GITHUB_WORKSPACE/out/mcuboot.hex"
+          cp "${{ matrix.app }}/zephyr/zephyr.signed.hex" "$GITHUB_WORKSPACE/out/app.signed.hex"
 
       - uses: actions/upload-artifact@v4
         with:
