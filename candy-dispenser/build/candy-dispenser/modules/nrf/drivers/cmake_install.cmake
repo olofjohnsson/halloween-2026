@@ -39,47 +39,47 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/entropy/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/entropy/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/flash/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/flash/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/gpio/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/gpio/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/hw_cc3xx/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/hw_cc3xx/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/mpsl/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/mpsl/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/serial/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/serial/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/dect/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/dect/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/clock_control/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/clock_control/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/install_local_manifest.txt"
+  file(WRITE "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/drivers/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

@@ -23,3 +23,5 @@ config HALLOWEEN_CODE_DISPLAY_SECONDS
       then enter it on station 5's keypad from memory.
 
 endmenu
+
+source "Kconfig.zephyr"

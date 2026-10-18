@@ -6,13 +6,13 @@
                 
 #define K_SYSCALL_DRIVER_ENTROPY(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, entropy, ENTROPY)
 
+#define K_SYSCALL_DRIVER_FLASH(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, flash, FLASH)
+
 #define K_SYSCALL_DRIVER_GPIO(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, gpio, GPIO)
 
-#define K_SYSCALL_DRIVER_I2C(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, i2c, I2C)
-
-#define K_SYSCALL_DRIVER_I2C_TARGET(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, i2c_target, I2C_TARGET)
-
 #define K_SYSCALL_DRIVER_MBOX(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, mbox, MBOX)
+
+#define K_SYSCALL_DRIVER_SPI(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, spi, SPI)
 
 #define K_SYSCALL_DRIVER_SHARED_IRQ(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, shared_irq, SHARED_IRQ)
 
@@ -66,8 +66,6 @@
 
 #define K_SYSCALL_DRIVER_ESPI_SAF(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, espi_saf, ESPI_SAF)
 
-#define K_SYSCALL_DRIVER_FLASH(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, flash, FLASH)
-
 #define K_SYSCALL_DRIVER_FPGA(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, fpga, FPGA)
 
 #define K_SYSCALL_DRIVER_FUEL_GAUGE(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, fuel_gauge, FUEL_GAUGE)
@@ -77,6 +75,10 @@
 #define K_SYSCALL_DRIVER_HAPTICS(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, haptics, HAPTICS)
 
 #define K_SYSCALL_DRIVER_HWSPINLOCK(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, hwspinlock, HWSPINLOCK)
+
+#define K_SYSCALL_DRIVER_I2C(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, i2c, I2C)
+
+#define K_SYSCALL_DRIVER_I2C_TARGET(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, i2c_target, I2C_TARGET)
 
 #define K_SYSCALL_DRIVER_I2S(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, i2s, I2S)
 
@@ -125,8 +127,6 @@
 #define K_SYSCALL_DRIVER_SENSOR(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, sensor, SENSOR)
 
 #define K_SYSCALL_DRIVER_SMBUS(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, smbus, SMBUS)
-
-#define K_SYSCALL_DRIVER_SPI(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, spi, SPI)
 
 #define K_SYSCALL_DRIVER_SYSCON(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, syscon, SYSCON)
 

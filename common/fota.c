@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include <zephyr/kernel.h>
+#include <zephyr/bluetooth/conn.h>
 #include <zephyr/dfu/mcuboot.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/mgmt/mcumgr/transport/smp_bt.h>

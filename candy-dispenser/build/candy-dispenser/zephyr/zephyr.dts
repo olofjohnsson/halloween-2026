@@ -38,7 +38,6 @@
 		mcuboot-button0 = &button0; /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:116 */
 		mcuboot-led0 = &led0;       /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:117 */
 		watchdog0 = &wdt0;          /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:118 */
-		candy-i2c = &arduino_i2c;   /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:16 */
 	};
 
 	/* node '/soc' defined in zephyr/dts/arm/armv8-m.dtsi:6 */
@@ -290,19 +289,18 @@
 
 			/* node '/soc/peripheral@50000000/i2c@9000' defined in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:136 */
 			i2c1: arduino_i2c: i2c@9000 {
-				#address-cells = < 0x1 >;            /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:144 */
-				#size-cells = < 0x0 >;               /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:145 */
-				reg = < 0x9000 0x1000 >;             /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:146 */
-				interrupts = < 0x9 0x1 >;            /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:147 */
-				easydma-maxcnt-bits = < 0x10 >;      /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:148 */
-				zephyr,pm-device-runtime-auto;       /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:150 */
-				compatible = "nordic,nrf-twim";      /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:169 */
-				status = "okay";                     /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:170 */
-				pinctrl-0 = < &candy_i2c1_default >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:45 */
-				pinctrl-1 = < &candy_i2c1_sleep >;   /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:46 */
+				#address-cells = < 0x1 >;       /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:144 */
+				#size-cells = < 0x0 >;          /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:145 */
+				reg = < 0x9000 0x1000 >;        /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:146 */
+				interrupts = < 0x9 0x1 >;       /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:147 */
+				easydma-maxcnt-bits = < 0x10 >; /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:148 */
+				zephyr,pm-device-runtime-auto;  /* in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:150 */
+				compatible = "nordic,nrf-twim"; /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:169 */
+				status = "okay";                /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:170 */
+				pinctrl-0 = < &i2c1_default >;  /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:171 */
+				pinctrl-1 = < &i2c1_sleep >;    /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:172 */
 				pinctrl-names = "default",
-				                "sleep";             /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:47 */
-				clock-frequency = < 0x186a0 >;       /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:48 */
+				                "sleep";        /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:173 */
 			};
 
 			/* node '/soc/peripheral@50000000/spi@9000' defined in zephyr/dts/arm/nordic/nrf5340_cpuapp_peripherals.dtsi:153 */
@@ -903,6 +901,7 @@
 
 		/* node '/pin-controller/i2c1_default' defined in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common_pinctrl.dtsi:7 */
 		i2c1_default: i2c1_default {
+			phandle = < 0x4 >; /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:171 */
 
 			/* node '/pin-controller/i2c1_default/group1' defined in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common_pinctrl.dtsi:8 */
 			group1 {
@@ -913,6 +912,7 @@
 
 		/* node '/pin-controller/i2c1_sleep' defined in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common_pinctrl.dtsi:14 */
 		i2c1_sleep: i2c1_sleep {
+			phandle = < 0x5 >; /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:172 */
 
 			/* node '/pin-controller/i2c1_sleep/group1' defined in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common_pinctrl.dtsi:15 */
 			group1 {
@@ -1126,29 +1126,6 @@
 				low-power-enable;      /* in zephyr/boards/nordic/nrf7002dk/nrf7002dk_nrf5340_cpuapp_pinctrl.dtsi:15 */
 			};
 		};
-
-		/* node '/pin-controller/candy_i2c1_default' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:52 */
-		candy_i2c1_default: candy_i2c1_default {
-			phandle = < 0x4 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:45 */
-
-			/* node '/pin-controller/candy_i2c1_default/group1' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:53 */
-			group1 {
-				psels = < 0xc00002e >,
-				        < 0xb00002d >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:54 */
-			};
-		};
-
-		/* node '/pin-controller/candy_i2c1_sleep' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:59 */
-		candy_i2c1_sleep: candy_i2c1_sleep {
-			phandle = < 0x5 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:46 */
-
-			/* node '/pin-controller/candy_i2c1_sleep/group1' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:60 */
-			group1 {
-				psels = < 0xc00002e >,
-				        < 0xb00002d >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:61 */
-				low-power-enable;      /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:63 */
-			};
-		};
 	};
 
 	/* node '/entropy_bt_hci' defined in zephyr/dts/vendor/nordic/nrf_common.dtsi:34 */
@@ -1350,69 +1327,16 @@
 		swctrl1-gpios = < &gpio0 0x1d 0x0 >; /* in zephyr/boards/nordic/nrf7002dk/nrf5340_cpuapp_common.dtsi:127 */
 	};
 
-	/* node '/candy_keypad' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:19 */
-	candy_keypad {
-
-		/* node '/candy_keypad/row_1' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:21 */
-		row1: row_1 {
-			compatible = "candy,gpio";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:21 */
-			gpios = < &gpio0 0x4 0x0 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:21 */
-			label = "Keypad row 1";     /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:21 */
-		};
-
-		/* node '/candy_keypad/row_2' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:22 */
-		row2: row_2 {
-			compatible = "candy,gpio";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:22 */
-			gpios = < &gpio0 0x5 0x0 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:22 */
-			label = "Keypad row 2";     /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:22 */
-		};
-
-		/* node '/candy_keypad/row_3' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:23 */
-		row3: row_3 {
-			compatible = "candy,gpio";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:23 */
-			gpios = < &gpio0 0x6 0x0 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:23 */
-			label = "Keypad row 3";     /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:23 */
-		};
-
-		/* node '/candy_keypad/row_4' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:24 */
-		row4: row_4 {
-			compatible = "candy,gpio";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:24 */
-			gpios = < &gpio0 0x7 0x0 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:24 */
-			label = "Keypad row 4";     /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:24 */
-		};
-
-		/* node '/candy_keypad/col_1' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:26 */
-		col1: col_1 {
-			compatible = "candy,gpio";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:26 */
-			gpios = < &gpio1 0xa 0x0 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:26 */
-			label = "Keypad column 1";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:26 */
-		};
-
-		/* node '/candy_keypad/col_2' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:27 */
-		col2: col_2 {
-			compatible = "candy,gpio";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:27 */
-			gpios = < &gpio1 0xb 0x0 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:27 */
-			label = "Keypad column 2";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:27 */
-		};
-
-		/* node '/candy_keypad/col_3' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:28 */
-		col3: col_3 {
-			compatible = "candy,gpio";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:28 */
-			gpios = < &gpio1 0xc 0x0 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:28 */
-			label = "Keypad column 3";  /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:28 */
-		};
-	};
-
-	/* node '/disc_switch' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:32 */
+	/* node '/disc_switch' defined in ../../Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:10 */
 	disc_switch: disc_switch {
-		compatible = "candy,gpio";   /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:33 */
-		gpios = < &gpio1 0x3 0x11 >; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:34 */
+		compatible = "candy,gpio";   /* in ../../Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:11 */
+		gpios = < &gpio1 0x3 0x11 >; /* in ../../Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:12 */
 	};
 
-	/* node '/candy_actuator' defined in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:37 */
+	/* node '/candy_actuator' defined in ../../Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:15 */
 	candy_actuator: candy_actuator {
-		compatible = "candy,gpio";      /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:38 */
-		gpios = < &gpio1 0x6 0x1 >;     /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:39 */
-		label = "Candy release driver"; /* in ../../Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:40 */
+		compatible = "candy,gpio";      /* in ../../Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:16 */
+		gpios = < &gpio1 0x6 0x1 >;     /* in ../../Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:17 */
+		label = "Candy release driver"; /* in ../../Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/boards/nrf7002dk_nrf5340_cpuapp.overlay:18 */
 	};
 };

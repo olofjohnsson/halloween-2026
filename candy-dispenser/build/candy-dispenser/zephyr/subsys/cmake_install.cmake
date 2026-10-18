@@ -39,132 +39,142 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/canbus/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/canbus/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/debug/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/debug/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/fb/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/fb/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/fs/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/fs/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/gnss/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/gnss/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/instrumentation/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/instrumentation/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/ipc/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/ipc/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/kvss/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/kvss/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/logging/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/logging/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/mem_mgmt/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/mem_mgmt/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/mgmt/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/mgmt/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/modbus/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/modbus/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/pm/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/pm/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/pmci/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/pmci/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/portability/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/portability/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/random/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/random/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/rtio/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/rtio/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/sd/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/sd/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/stats/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/stats/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/storage/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/storage/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/task_wdt/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/task_wdt/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/testsuite/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/testsuite/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/tracing/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/tracing/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/usb/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/usb/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/bluetooth/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/bluetooth/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/crc/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/dfu/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/install_local_manifest.txt"
+  file(WRITE "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

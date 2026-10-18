@@ -39,22 +39,22 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/virtio/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/virtio/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/rpmsg/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/rpmsg/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/remoteproc/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/remoteproc/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/utils/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/utils/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -62,12 +62,12 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/include/generated/openamp")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/include/generated/openamp")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/install_local_manifest.txt"
+  file(WRITE "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/open-amp/open-amp/lib/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

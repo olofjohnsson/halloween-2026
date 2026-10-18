@@ -23,7 +23,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake --regenerate-during-build -S/home/olof-johnsson/ncs/v3.4.0/zephyr/share/sysbuild -B/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build
+  command = /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake --regenerate-during-build -S/home/olof-johnsson/ncs/v3.4.0/zephyr/share/sysbuild -B/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build
   description = Re-running CMake...
   generator = 1
 

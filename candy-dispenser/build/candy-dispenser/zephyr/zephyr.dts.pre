@@ -1495,24 +1495,14 @@ wifi-max-tx-pwr-5g-high-mcs7 = <13>;
 # 41 "/home/olof-johnsson/ncs/v3.4.0/zephyr/boards/nordic/nrf7002dk/nrf7002dk_nrf5340_cpuapp.dts" 2
 # 0 "<command-line>" 2
 # 1 "./boards/nrf7002dk_nrf5340_cpuapp.overlay" 1
-# 14 "./boards/nrf7002dk_nrf5340_cpuapp.overlay"
+
+
+
+
+
+
+
 / {
-    aliases {
-        candy-i2c = &arduino_i2c;
-    };
-
-    candy_keypad {
-
-        row1: row_1 { compatible = "candy,gpio"; gpios = <&gpio0 4 (0 << 0)>; label = "Keypad row 1"; };
-        row2: row_2 { compatible = "candy,gpio"; gpios = <&gpio0 5 (0 << 0)>; label = "Keypad row 2"; };
-        row3: row_3 { compatible = "candy,gpio"; gpios = <&gpio0 6 (0 << 0)>; label = "Keypad row 3"; };
-        row4: row_4 { compatible = "candy,gpio"; gpios = <&gpio0 7 (0 << 0)>; label = "Keypad row 4"; };
-
-        col1: col_1 { compatible = "candy,gpio"; gpios = <&gpio1 10 (0 << 0)>; label = "Keypad column 1"; };
-        col2: col_2 { compatible = "candy,gpio"; gpios = <&gpio1 11 (0 << 0)>; label = "Keypad column 2"; };
-        col3: col_3 { compatible = "candy,gpio"; gpios = <&gpio1 12 (0 << 0)>; label = "Keypad column 3"; };
-    };
-
 
     disc_switch: disc_switch {
         compatible = "candy,gpio";
@@ -1523,30 +1513,6 @@ wifi-max-tx-pwr-5g-high-mcs7 = <13>;
         compatible = "candy,gpio";
         gpios = <&gpio1 6 (1 << 0)>;
         label = "Candy release driver";
-    };
-};
-
-&arduino_i2c {
-    pinctrl-0 = <&candy_i2c1_default>;
-    pinctrl-1 = <&candy_i2c1_sleep>;
-    pinctrl-names = "default", "sleep";
-    clock-frequency = <100000>;
-};
-
-&pinctrl {
-    candy_i2c1_default: candy_i2c1_default {
-        group1 {
-            psels = <((((((1) * 32U) + (14)) & 0x1FFU) << 0U) | ((12U & 0xFFU) << 24U))>,
-                    <((((((1) * 32U) + (13)) & 0x1FFU) << 0U) | ((11U & 0xFFU) << 24U))>;
-        };
-    };
-
-    candy_i2c1_sleep: candy_i2c1_sleep {
-        group1 {
-            psels = <((((((1) * 32U) + (14)) & 0x1FFU) << 0U) | ((12U & 0xFFU) << 24U))>,
-                    <((((((1) * 32U) + (13)) & 0x1FFU) << 0U) | ((11U & 0xFFU) << 24U))>;
-            low-power-enable;
-        };
     };
 };
 # 0 "<command-line>" 2

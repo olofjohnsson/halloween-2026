@@ -37,9 +37,14 @@ if(NOT DEFINED CMAKE_OBJDUMP)
   set(CMAKE_OBJDUMP "/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-objdump")
 endif()
 
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/mgmt/mcumgr/cmake_install.cmake")
+endif()
+
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/subsys/mgmt/install_local_manifest.txt"
+  file(WRITE "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/subsys/mgmt/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

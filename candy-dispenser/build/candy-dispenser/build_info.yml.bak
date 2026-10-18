@@ -1,7 +1,7 @@
 cmake:
   application:
-    configuration-dir: '/home/olof-johnsson/Documents/repos/halloween/candy-dispenser'
-    source-dir: '/home/olof-johnsson/Documents/repos/halloween/candy-dispenser'
+    configuration-dir: '/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser'
+    source-dir: '/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser'
   board:
     name: 'nrf7002dk'
     path:
@@ -11,7 +11,7 @@ cmake:
   devicetree:
     bindings-dirs:
      - '/home/olof-johnsson/ncs/v3.4.0/nrf/dts/bindings'
-     - '/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/dts/bindings'
+     - '/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/dts/bindings'
      - '/home/olof-johnsson/ncs/v3.4.0/zephyr/dts/bindings'
     files:
      - '/home/olof-johnsson/ncs/v3.4.0/zephyr/boards/nordic/nrf7002dk/nrf7002dk_nrf5340_cpuapp.dts'
@@ -22,7 +22,7 @@ cmake:
      - '/home/olof-johnsson/ncs/v3.4.0/nrf/dts/riscv'
      - '/home/olof-johnsson/ncs/v3.4.0/nrf/dts/arm'
      - '/home/olof-johnsson/ncs/v3.4.0/nrf/dts'
-     - '/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/dts'
+     - '/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/dts'
      - '/home/olof-johnsson/ncs/v3.4.0/zephyr/include'
      - '/home/olof-johnsson/ncs/v3.4.0/zephyr/include/zephyr'
      - '/home/olof-johnsson/ncs/v3.4.0/zephyr/dts/common'
@@ -42,11 +42,11 @@ cmake:
   kconfig:
     files:
      - '/home/olof-johnsson/ncs/v3.4.0/zephyr/boards/nordic/nrf7002dk/nrf7002dk_nrf5340_cpuapp_defconfig'
-     - '/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/prj.conf'
-     - '/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/misc/generated/extra_kconfig_options.conf'
-     - '/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/zephyr/.config.sysbuild'
+     - '/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/prj.conf'
+     - '/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/misc/generated/extra_kconfig_options.conf'
+     - '/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/zephyr/.config.sysbuild'
     user-files:
-     - '/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/prj.conf'
+     - '/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/prj.conf'
   toolchain:
     name: 'zephyr'
     path: '/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk'

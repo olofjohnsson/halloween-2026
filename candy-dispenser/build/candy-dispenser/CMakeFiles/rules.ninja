@@ -347,6 +347,120 @@ rule C_STATIC_LIBRARY_LINKER__soc__nordic_
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER__mcumgr_mgmt_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__mcumgr_mgmt_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER__mcumgr_smp_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__mcumgr_smp_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER__mcumgr_util_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__mcumgr_util_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER__mcumgr_grp_img_mgmt_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__mcumgr_grp_img_mgmt_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER__mcumgr_grp_os_mgmt_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__mcumgr_grp_os_mgmt_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER__mcumgr_transport_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__mcumgr_transport_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER__subsys__random_unscanned_
   depfile = $DEP_FILE
   deps = gcc
@@ -396,6 +510,44 @@ rule C_COMPILER__subsys__bluetooth__host_unscanned_
 # Rule for linking C static library.
 
 rule C_STATIC_LIBRARY_LINKER__subsys__bluetooth__host_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER__subsys__crc_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__subsys__crc_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER__subsys__dfu__boot_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__subsys__dfu__boot_
   command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -499,6 +651,25 @@ rule C_STATIC_LIBRARY_LINKER__drivers__entropy_
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER__drivers__flash_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__drivers__flash_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER__drivers__gpio_unscanned_
   depfile = $DEP_FILE
   deps = gcc
@@ -510,25 +681,6 @@ rule C_COMPILER__drivers__gpio_unscanned_
 # Rule for linking C static library.
 
 rule C_STATIC_LIBRARY_LINKER__drivers__gpio_
-  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
-# Rule for compiling C files.
-
-rule C_COMPILER__drivers__i2c_unscanned_
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER__drivers__i2c_
   command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -586,6 +738,25 @@ rule C_COMPILER__drivers__serial_unscanned_
 # Rule for linking C static library.
 
 rule C_STATIC_LIBRARY_LINKER__drivers__serial_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER__drivers__spi_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__drivers__spi_
   command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -727,6 +898,25 @@ rule C_STATIC_LIBRARY_LINKER__.2e.2e__nrf__drivers__hw_cc3xx_
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER__mcuboot_util_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__mcuboot_util_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER__nrfx_unscanned_
   depfile = $DEP_FILE
   deps = gcc
@@ -784,6 +974,25 @@ rule C_STATIC_LIBRARY_LINKER__open_amp_
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER__modules__zcbor_unscanned_
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache ${LAUNCHER}${CODE_CHECK}/home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER__modules__zcbor_
+  command = $PRE_LINK && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake -E rm -f $TARGET_FILE && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && ccache /home/olof-johnsson/ncs/toolchains/fbf7391cab/opt/zephyr-sdk/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-ranlib $TARGET_FILE && $POST_BUILD
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER__kernel_unscanned_
   depfile = $DEP_FILE
   deps = gcc
@@ -804,7 +1013,7 @@ rule C_STATIC_LIBRARY_LINKER__kernel_
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake --regenerate-during-build -S/home/olof-johnsson/Documents/repos/halloween/candy-dispenser -B/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser
+  command = /home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/cmake --regenerate-during-build -S/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser -B/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser
   description = Re-running CMake...
   generator = 1
 

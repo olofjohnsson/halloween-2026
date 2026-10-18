@@ -4,6 +4,6 @@
 
 method=source_dir
 command=
-source_dir=/home/olof-johnsson/Documents/repos/halloween/candy-dispenser
+source_dir=/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser
 work_dir=
 

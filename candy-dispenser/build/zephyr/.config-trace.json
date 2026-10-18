@@ -142,22 +142,19 @@
     "SB_CONFIG_PARTITION_MANAGER",
     "y",
     "bool",
-    "n",
-    "assign",
-    [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      30
-    ]
+    null,
+    "unset",
+    null
   ],
   [
     "SB_CONFIG_BUILD_OUTPUT_BIN",
     "y",
     "bool",
     "y",
-    "assign",
+    "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      31
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.sysbuild",
+      60
     ]
   ],
   [
@@ -165,10 +162,10 @@
     "y",
     "bool",
     "y",
-    "assign",
+    "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      32
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.sysbuild",
+      68
     ]
   ],
   [
@@ -286,8 +283,11 @@
     "y",
     "bool",
     "y",
-    "assign",
-    null
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.netcore",
+      72
+    ]
   ],
   [
     "SB_CONFIG_NETCORE_EMPTY",
@@ -333,23 +333,107 @@
     "SB_CONFIG_SECURE_BOOT_APPCORE",
     "y",
     "bool",
-    "n",
-    "assign",
-    [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      58
-    ]
+    null,
+    "unset",
+    null
   ],
   [
     "SB_CONFIG_SECURE_BOOT_NETCORE",
     "y",
     "bool",
-    "n",
-    "assign",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_HARDWARE_DOWNGRADE_PREVENTION",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_EXTRA_IMAGES",
+    "y",
+    "int",
+    "0",
+    "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      59
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.mcuboot",
+      115
     ]
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MAX_UPDATEABLE_IMAGES",
+    "n",
+    "int",
+    "4",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.mcuboot",
+      124
+    ]
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MIN_UPDATEABLE_IMAGES",
+    "n",
+    "int",
+    "1",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.mcuboot",
+      140
+    ]
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MIN_ADDITIONAL_UPDATEABLE_IMAGES",
+    "n",
+    "int",
+    "0",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.mcuboot",
+      146
+    ]
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_UPDATEABLE_IMAGES",
+    "y",
+    "int",
+    "1",
+    "default",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_ADDITIONAL_UPDATEABLE_IMAGES",
+    "y",
+    "int",
+    "0",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.mcuboot",
+      160
+    ]
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_APP_SYNC_UPDATEABLE_IMAGES",
+    "y",
+    "bool",
+    "y",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.mcuboot",
+      166
+    ]
+  ],
+  [
+    "SB_CONFIG_DFU_MULTI_IMAGE_PACKAGE_BUILD",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
   ],
   [
     "SB_CONFIG_SUPPORT_QSPI_XIP",
@@ -367,44 +451,65 @@
     "y",
     "hex",
     "0x1000000",
-    "assign",
+    "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      67
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.bt_fast_pair",
+      12
     ]
   ],
   [
     "SB_CONFIG_BT_FAST_PAIR_ANTI_SPOOFING_PRIVATE_KEY",
     "y",
     "string",
-    "",
-    "assign",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_DFU_ZIP",
+    "y",
+    "bool",
+    "y",
+    "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      68
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.zip",
+      8
     ]
+  ],
+  [
+    "SB_CONFIG_DFU_ZIP_APP",
+    "y",
+    "bool",
+    "y",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.zip",
+      16
+    ]
+  ],
+  [
+    "SB_CONFIG_DFU_ZIP_BLUETOOTH_MESH_METADATA",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
   ],
   [
     "SB_CONFIG_MATTER",
     "y",
     "bool",
-    "n",
-    "assign",
-    [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      71
-    ]
+    null,
+    "unset",
+    null
   ],
   [
     "SB_CONFIG_WIFI_NRF70",
     "y",
     "bool",
-    "n",
-    "assign",
-    [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      76
-    ]
+    null,
+    "unset",
+    null
   ],
   [
     "SB_CONFIG_APPROTECT_USE_UICR",
@@ -435,8 +540,11 @@
     "y",
     "bool",
     "y",
-    "assign",
-    null
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.approtect",
+      8
+    ]
   ],
   [
     "SB_CONFIG_SECURE_APPROTECT_USE_UICR",
@@ -467,8 +575,11 @@
     "y",
     "bool",
     "y",
-    "assign",
-    null
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.approtect",
+      46
+    ]
   ],
   [
     "SB_CONFIG_SUPPORT_FIRMWARE_LOADER_BLE_MCUMGR",
@@ -499,7 +610,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       5
     ]
   ],
@@ -510,7 +621,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       9
     ]
   ],
@@ -521,7 +632,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       12
     ]
   ],
@@ -532,7 +643,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       15
     ]
   ],
@@ -543,7 +654,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       18
     ]
   ],
@@ -554,7 +665,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       21
     ]
   ],
@@ -565,7 +676,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       24
     ]
   ],
@@ -576,7 +687,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       27
     ]
   ],
@@ -587,7 +698,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       30
     ]
   ],
@@ -598,7 +709,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       33
     ]
   ],
@@ -609,7 +720,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       36
     ]
   ],
@@ -620,7 +731,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       39
     ]
   ],
@@ -631,7 +742,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       42
     ]
   ],
@@ -642,7 +753,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       45
     ]
   ],
@@ -653,7 +764,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       48
     ]
   ],
@@ -664,7 +775,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       51
     ]
   ],
@@ -675,7 +786,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       54
     ]
   ],
@@ -686,7 +797,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       57
     ]
   ],
@@ -697,7 +808,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       60
     ]
   ],
@@ -708,7 +819,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       63
     ]
   ],
@@ -719,7 +830,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       66
     ]
   ],
@@ -730,7 +841,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       69
     ]
   ],
@@ -741,7 +852,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       72
     ]
   ],
@@ -752,7 +863,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       75
     ]
   ],
@@ -763,7 +874,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       78
     ]
   ],
@@ -774,7 +885,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       81
     ]
   ],
@@ -785,7 +896,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       84
     ]
   ],
@@ -796,7 +907,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       87
     ]
   ],
@@ -807,7 +918,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       90
     ]
   ],
@@ -818,7 +929,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       93
     ]
   ],
@@ -829,7 +940,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       96
     ]
   ],
@@ -840,7 +951,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       99
     ]
   ],
@@ -851,7 +962,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       102
     ]
   ],
@@ -862,7 +973,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       105
     ]
   ],
@@ -873,7 +984,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       108
     ]
   ],
@@ -884,7 +995,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       111
     ]
   ],
@@ -895,7 +1006,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       114
     ]
   ],
@@ -906,7 +1017,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       117
     ]
   ],
@@ -917,7 +1028,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       120
     ]
   ],
@@ -928,7 +1039,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       123
     ]
   ],
@@ -939,7 +1050,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       126
     ]
   ],
@@ -950,7 +1061,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       129
     ]
   ],
@@ -961,7 +1072,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       132
     ]
   ],
@@ -972,7 +1083,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       135
     ]
   ],
@@ -983,7 +1094,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       138
     ]
   ],
@@ -994,7 +1105,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       141
     ]
   ],
@@ -1005,7 +1116,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       144
     ]
   ],
@@ -1016,7 +1127,7 @@
     "y",
     "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
+      "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules",
       147
     ]
   ],
@@ -1024,22 +1135,19 @@
     "SB_CONFIG_WARN_EXPERIMENTAL",
     "y",
     "bool",
-    "n",
-    "assign",
-    [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      151
-    ]
+    null,
+    "unset",
+    null
   ],
   [
     "SB_CONFIG_WARN_DEPRECATED",
     "y",
     "bool",
     "y",
-    "assign",
+    "default",
     [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      152
+      "/home/olof-johnsson/ncs/v3.4.0/zephyr/share/sysbuild/Kconfig",
+      66
     ]
   ],
   [
@@ -1068,12 +1176,179 @@
     "SB_CONFIG_BOOTLOADER_NONE",
     "y",
     "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_BOOTLOADER_MCUBOOT",
+    "y",
+    "bool",
     "y",
     "assign",
     null
   ],
   [
-    "SB_CONFIG_BOOTLOADER_MCUBOOT",
+    "SB_CONFIG_MCUBOOT_MODE_SINGLE_APP",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_SWAP_USING_OFFSET",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_SWAP_USING_MOVE",
+    "y",
+    "bool",
+    "y",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/nrf/modules/../sysbuild/Kconfig.mcuboot",
+      193
+    ]
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_SWAP_SCRATCH",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_OVERWRITE_ONLY",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_DIRECT_XIP",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_DIRECT_XIP_WITH_REVERT",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_RAM_LOAD",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_RAM_LOAD_WITH_REVERT",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_FIRMWARE_UPDATER",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_MCUBOOT_MODE_SINGLE_APP_RAM_LOAD",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_SIGNATURE_TYPE",
+    "n",
+    "string",
+    "RSA",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/zephyr/share/sysbuild/images/bootloader/Kconfig",
+      176
+    ]
+  ],
+  [
+    "SB_CONFIG_BOOT_SIGNATURE_TYPE_NONE",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_BOOT_SIGNATURE_TYPE_RSA",
+    "y",
+    "bool",
+    "y",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/zephyr/share/sysbuild/images/bootloader/Kconfig",
+      182
+    ]
+  ],
+  [
+    "SB_CONFIG_BOOT_SIGNATURE_TYPE_ECDSA_P256",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_BOOT_SIGNATURE_TYPE_ED25519",
+    "y",
+    "bool",
+    null,
+    "unset",
+    null
+  ],
+  [
+    "SB_CONFIG_BOOT_SIGNATURE_KEY_FILE",
+    "y",
+    "string",
+    "/home/olof-johnsson/ncs/v3.4.0/bootloader/mcuboot/root-rsa-2048.pem",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/zephyr/share/sysbuild/images/bootloader/Kconfig",
+      202
+    ]
+  ],
+  [
+    "SB_CONFIG_SUPPORT_BOOT_ENCRYPTION",
+    "n",
+    "bool",
+    "y",
+    "default",
+    [
+      "/home/olof-johnsson/ncs/v3.4.0/zephyr/share/sysbuild/images/bootloader/Kconfig",
+      210
+    ]
+  ],
+  [
+    "SB_CONFIG_BOOT_ENCRYPTION",
     "y",
     "bool",
     null,
@@ -1095,22 +1370,16 @@
     "SB_CONFIG_COMPILER_WARNINGS_AS_ERRORS",
     "y",
     "bool",
-    "n",
-    "assign",
-    [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      162
-    ]
+    null,
+    "unset",
+    null
   ],
   [
     "SB_CONFIG_MERGED_HEX_FILES",
     "y",
     "bool",
-    "n",
-    "assign",
-    [
-      "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/zephyr/.config",
-      163
-    ]
+    null,
+    "unset",
+    null
   ]
 ]

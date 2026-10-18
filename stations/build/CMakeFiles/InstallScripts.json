@@ -1,0 +1,15 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/cmake_install.cmake",
+		"/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/_sysbuild/cmake_install.cmake",
+		"/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/_sysbuild/sysbuild/images/cmake_install.cmake",
+		"/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/_sysbuild/sysbuild/images/bootloader/cmake_install.cmake",
+		"/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/_sysbuild/sysbuild/images/firmware_loader/cmake_install.cmake",
+		"/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/modules/nrf/cmake_install.cmake",
+		"/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/modules/mcuboot/cmake_install.cmake",
+		"/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/_sysbuild/sysbuild/images/boards/cmake_install.cmake",
+		"/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/_sysbuild/sysbuild/images/soc/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -39,27 +39,27 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/tf-psa-crypto/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/tf-psa-crypto/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/core/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/core/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/drivers/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/drivers/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/zephyr/cmake_install.cmake")
+  include("/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/zephyr/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/install_local_manifest.txt"
+  file(WRITE "/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser/modules/nrf/subsys/nrf_security/src/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

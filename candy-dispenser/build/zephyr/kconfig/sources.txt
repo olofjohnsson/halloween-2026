@@ -1,8 +1,8 @@
-/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules
-/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/boards/Kconfig.nrf7002dk
-/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/boards/Kconfig.sysbuild
-/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/soc/Kconfig.soc
-/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/Kconfig/soc/Kconfig.sysbuild
+/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/Kconfig.sysbuild.modules
+/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/boards/Kconfig.nrf7002dk
+/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/boards/Kconfig.sysbuild
+/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/soc/Kconfig.soc
+/home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/Kconfig/soc/Kconfig.sysbuild
 /home/olof-johnsson/ncs/v3.4.0/nrf/soc/nordic/Kconfig.soc
 /home/olof-johnsson/ncs/v3.4.0/nrf/soc/nordic/Kconfig.sysbuild
 /home/olof-johnsson/ncs/v3.4.0/nrf/soc/nordic/common/vpr/Kconfig.sysbuild

@@ -1,0 +1,28 @@
+cmake:
+  application:
+    source-dir: '/home/olof-johnsson/ncs/v3.4.0/zephyr/share/sysbuild'
+  board:
+    name: 'promicro_nrf52840'
+    path:
+     - '/home/olof-johnsson/ncs/v3.4.0/zephyr/boards/others/promicro_nrf52840'
+    qualifiers: 'nrf52840'
+    revision: ''
+  images:
+   - name: 'stations'
+     source-dir: '/home/olof-johnsson/Documents/repos/halloween-2026/stations'
+     type: 'MAIN'
+   - name: 'mcuboot'
+     source-dir: '/home/olof-johnsson/ncs/v3.4.0/bootloader/mcuboot/boot/zephyr'
+     type: 'BOOTLOADER'
+  kconfig:
+    files:
+     - '/home/olof-johnsson/Documents/repos/halloween-2026/stations/build/_sysbuild/empty.conf'
+     - '/home/olof-johnsson/Documents/repos/halloween-2026/stations/sysbuild.conf'
+    user-files:
+     - '/home/olof-johnsson/Documents/repos/halloween-2026/stations/sysbuild.conf'
+  sysbuild: 'true'
+version: '0.1.0'
+west:
+  command: '/home/olof-johnsson/ncs/toolchains/fbf7391cab/usr/local/bin/west build --build-dir /home/olof-johnsson/Documents/repos/halloween-2026/stations/build /home/olof-johnsson/Documents/repos/halloween-2026/stations --pristine --board promicro_nrf52840/nrf52840 -- -DDTC_OVERLAY_FILE=boards/promicro_nrf52840_nrf52840.overlay -DDEBUG_THREAD_INFO=On -DCONFIG_DEBUG_THREAD_INFO=y -Dstations_DEBUG_THREAD_INFO=Off -Dmcuboot_DEBUG_THREAD_INFO=Off'
+  topdir: '/home/olof-johnsson/ncs/v3.4.0'
+  version: '1.5.0'

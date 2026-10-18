@@ -1,7 +1,10 @@
 default: candy-dispenser
-build_dir: /home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build
+build_dir: /home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build
 domains:
   - name: candy-dispenser
-    build_dir: /home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/candy-dispenser
+    build_dir: /home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/candy-dispenser
+  - name: mcuboot
+    build_dir: /home/olof-johnsson/Documents/repos/halloween-2026/candy-dispenser/build/mcuboot
 flash_order:
+  - mcuboot
   - candy-dispenser
