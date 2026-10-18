@@ -1,2 +1,0 @@
-# Load Zephyr board defconfig descriptions.
-osource "/home/olof-johnsson/ncs/v3.4.0/zephyr/boards/others/promicro_nrf52840/Kconfig.defconfig"
