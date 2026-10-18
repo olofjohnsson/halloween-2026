@@ -1,0 +1,10 @@
+description: Single GPIO output used by a Halloween station (LED strip driver)
+
+compatible: "halloween,gpio"
+
+properties:
+  gpios:
+    type: phandle-array
+    required: true
+  label:
+    type: string

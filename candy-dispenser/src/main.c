@@ -1,0 +1,231 @@
+#include <errno.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/hci.h>
+#include <zephyr/logging/log.h>
+
+LOG_MODULE_REGISTER(candy, LOG_LEVEL_INF);
+
+/* Protocol shared with the stations (see ../stations/src/main.c). */
+#define HALLOWEEN_SERVICE_UUID 0xFFF0
+#define PROTOCOL_VERSION 1
+#define MAGIC_0 0x48
+#define MAGIC_1 0x57
+#define MSG_IDLE 3
+#define MSG_RELEASE_CANDY 4 /* station 5 -> dispenser */
+#define MSG_CANDY_DONE 7    /* dispenser -> station 5 */
+#define LAST_STATION_ID 5
+#define DISPENSER_ID 0
+
+#define PAYLOAD_LEN 11
+#define SERVICE_DATA_LEN (2 + PAYLOAD_LEN)
+
+#define ACTUATOR_PULSE_MS 800 /* fallback when there is no disc switch */
+#define DISC_LEAVE_TIMEOUT_MS 3000
+#define DISC_HOME_TIMEOUT_MS 10000
+
+/* Set to 1 to run only the disc test (driver runs until the switch, repeat). */
+#define DISC_TEST 0
+
+static const struct gpio_dt_spec actuator =
+    GPIO_DT_SPEC_GET(DT_NODELABEL(candy_actuator), gpios);
+
+#if DT_NODE_EXISTS(DT_NODELABEL(disc_switch))
+#define HAS_DISC_SWITCH 1
+static const struct gpio_dt_spec disc_switch =
+    GPIO_DT_SPEC_GET(DT_NODELABEL(disc_switch), gpios);
+#else
+#define HAS_DISC_SWITCH 0
+#endif
+
+struct release_request {
+    uint16_t session;
+};
+
+/* BLE scan callback runs outside the main thread; queue requests for it. */
+K_MSGQ_DEFINE(release_msgq, sizeof(struct release_request), 4, 4);
+
+static uint16_t last_released_session;
+
+static uint8_t service_data[SERVICE_DATA_LEN];
+static const uint8_t adv_flags = BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR;
+static struct bt_data ad[] = {
+    BT_DATA(BT_DATA_FLAGS, &adv_flags, sizeof(adv_flags)),
+    BT_DATA(BT_DATA_SVC_DATA16, service_data, sizeof(service_data)),
+};
+
+static void set_beacon(uint8_t type, uint8_t target, uint16_t session)
+{
+    service_data[0] = (uint8_t)(HALLOWEEN_SERVICE_UUID & 0xff);
+    service_data[1] = (uint8_t)(HALLOWEEN_SERVICE_UUID >> 8);
+    service_data[2] = MAGIC_0;
+    service_data[3] = MAGIC_1;
+    service_data[4] = PROTOCOL_VERSION;
+    service_data[5] = type;
+    service_data[6] = target;
+    service_data[7] = DISPENSER_ID;
+    service_data[8] = (uint8_t)(session & 0xff);
+    service_data[9] = (uint8_t)(session >> 8);
+    service_data[10] = 0;
+    service_data[11] = 0;
+    service_data[12] = 0;
+
+    int rc = bt_le_adv_update_data(ad, ARRAY_SIZE(ad), NULL, 0);
+    if (rc < 0) {
+        LOG_ERR("Updating BLE beacon failed: %d", rc);
+    }
+}
+
+static bool parse_service_data(struct bt_data *data, void *user_data)
+{
+    struct release_request *out = user_data;
+
+    if (data->type != BT_DATA_SVC_DATA16 || data->data_len < SERVICE_DATA_LEN) {
+        return true;
+    }
+
+    if (data->data[0] != (uint8_t)(HALLOWEEN_SERVICE_UUID & 0xff) ||
+        data->data[1] != (uint8_t)(HALLOWEEN_SERVICE_UUID >> 8)) {
+        return true;
+    }
+
+    const uint8_t *p = data->data + 2;
+    if (p[0] != MAGIC_0 || p[1] != MAGIC_1 || p[2] != PROTOCOL_VERSION ||
+        p[3] != MSG_RELEASE_CANDY || p[4] != DISPENSER_ID ||
+        p[5] != LAST_STATION_ID) {
+        return true;
+    }
+
+    out->session = (uint16_t)p[6] | ((uint16_t)p[7] << 8);
+    return false;
+}
+
+static void device_found(const bt_addr_le_t *addr, int8_t rssi,
+                         uint8_t adv_type, struct net_buf_simple *ad_buf)
+{
+    ARG_UNUSED(addr);
+    ARG_UNUSED(rssi);
+    ARG_UNUSED(adv_type);
+
+    struct release_request req = {0};
+    bt_data_parse(ad_buf, parse_service_data, &req);
+    if (req.session != 0) {
+        (void)k_msgq_put(&release_msgq, &req, K_NO_WAIT);
+    }
+}
+
+#if HAS_DISC_SWITCH
+static bool wait_disc_switch(bool active, int64_t timeout_ms)
+{
+    int64_t end = k_uptime_get() + timeout_ms;
+
+    while (k_uptime_get() < end) {
+        if (gpio_pin_get_dt(&disc_switch) == (active ? 1 : 0)) {
+            return true;
+        }
+        k_msleep(2);
+    }
+    return false;
+}
+#endif
+
+/* Turn the disc one position: run the driver until the disc has left home
+ * and come back to the home switch. */
+static void release_candy(void)
+{
+    (void)gpio_pin_set_dt(&actuator, 1);
+
+#if HAS_DISC_SWITCH
+    if (gpio_pin_get_dt(&disc_switch) == 1 &&
+        !wait_disc_switch(false, DISC_LEAVE_TIMEOUT_MS)) {
+        LOG_ERR("Disc did not leave home position");
+    } else if (!wait_disc_switch(true, DISC_HOME_TIMEOUT_MS)) {
+        LOG_ERR("Timeout waiting for disc home switch");
+    }
+#else
+    k_msleep(ACTUATOR_PULSE_MS);
+#endif
+
+    (void)gpio_pin_set_dt(&actuator, 0);
+}
+
+#if DISC_TEST && HAS_DISC_SWITCH
+static void disc_test_thread(void *a, void *b, void *c)
+{
+    ARG_UNUSED(a);
+    ARG_UNUSED(b);
+    ARG_UNUSED(c);
+
+    while (1) {
+        release_candy();
+        k_sleep(K_SECONDS(2));
+    }
+}
+
+K_THREAD_DEFINE(disc_test, 1024, disc_test_thread, NULL, NULL, NULL, 7, 0, 1000);
+#endif
+
+int main(void)
+{
+    int rc;
+
+    rc = gpio_pin_configure_dt(&actuator, GPIO_OUTPUT_INACTIVE);
+    if (rc < 0) {
+        LOG_ERR("Actuator GPIO setup failed: %d", rc);
+        return 0;
+    }
+
+#if HAS_DISC_SWITCH
+    rc = gpio_pin_configure_dt(&disc_switch, GPIO_INPUT);
+    if (rc < 0) {
+        LOG_ERR("Disc switch setup failed: %d", rc);
+        return 0;
+    }
+#endif
+
+    rc = bt_enable(NULL);
+    if (rc < 0) {
+        LOG_ERR("Bluetooth init failed: %d", rc);
+        return 0;
+    }
+
+    set_beacon(MSG_IDLE, 0, 0);
+    rc = bt_le_adv_start(BT_LE_ADV_NCONN, ad, ARRAY_SIZE(ad), NULL, 0);
+    if (rc < 0) {
+        LOG_ERR("BLE advertising start failed: %d", rc);
+        return 0;
+    }
+
+    rc = bt_le_scan_start(BT_LE_SCAN_ACTIVE, device_found);
+    if (rc < 0) {
+        LOG_ERR("BLE scan start failed: %d", rc);
+        return 0;
+    }
+
+    LOG_INF("Candy dispenser ready");
+
+    while (1) {
+        struct release_request req;
+
+        if (k_msgq_get(&release_msgq, &req, K_FOREVER) != 0) {
+            continue;
+        }
+
+        /* Station 5 repeats its request until it hears the confirmation, so
+         * release only once per session and keep confirming it. */
+        if (req.session != last_released_session) {
+            LOG_INF("Release requested (session=%u)", req.session);
+            release_candy();
+            last_released_session = req.session;
+            set_beacon(MSG_CANDY_DONE, LAST_STATION_ID, req.session);
+            LOG_INF("Candy released; confirmation advertised");
+        }
+    }
+    return 0;
+}

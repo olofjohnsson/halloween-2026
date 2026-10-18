@@ -1,0 +1,25 @@
+menu "Halloween station"
+
+config HALLOWEEN_STATION_ID
+    int "Station ID (1..5)"
+    range 1 5
+    default 1
+    help
+      Station number in the puzzle chain. Station 1 starts the game;
+      station 5 generates the final code.
+
+config HALLOWEEN_CORRECT_BUTTON
+    int "Correct answer button (1..3)"
+    range 1 3
+    default 1
+    help
+      Which of the three answer buttons is correct at this station.
+
+config HALLOWEEN_CODE_DISPLAY_SECONDS
+    int "Seconds to show the final code on station 5's LCD (0 = always)"
+    default 15
+    help
+      After this time the LCD hides the code and asks for it; the kids must
+      then enter it on station 5's keypad from memory.
+
+endmenu

@@ -1,0 +1,10 @@
+description: Single GPIO pin used by the candy dispenser (keypad row/column or actuator)
+
+compatible: "candy,gpio"
+
+properties:
+  gpios:
+    type: phandle-array
+    required: true
+  label:
+    type: string

@@ -1,0 +1,2 @@
+"nrf":"/home/olof-johnsson/ncs/v3.4.0/nrf":"/home/olof-johnsson/ncs/v3.4.0/nrf/sysbuild"
+"mcuboot":"/home/olof-johnsson/ncs/v3.4.0/bootloader/mcuboot":"/home/olof-johnsson/ncs/v3.4.0/bootloader/mcuboot/boot/zephyr/sysbuild"

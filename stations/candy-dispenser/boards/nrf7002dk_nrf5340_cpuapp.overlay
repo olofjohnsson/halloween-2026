@@ -1,0 +1,20 @@
+
+/*
+ * nRF7002 DK (nRF5340 app core). All signals on the Arduino header (1.8 V logic).
+ * Candy driver output: P1.06 = LED1, D4 (active-low, inverting transistor stage)
+ * Disc switch      : P1.03 (active-low, pull-up)
+ */
+
+/ {
+    /* Disc position switch to GND: active (pin low) at disc position 0. */
+    disc_switch: disc_switch {
+        compatible = "candy,gpio";
+        gpios = <&gpio1 3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+    };
+
+    candy_actuator: candy_actuator {
+        compatible = "candy,gpio";
+        gpios = <&gpio1 6 GPIO_ACTIVE_LOW>; /* inverting transistor stage */
+        label = "Candy release driver";
+    };
+};

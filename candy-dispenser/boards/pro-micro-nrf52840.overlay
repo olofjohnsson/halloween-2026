@@ -1,0 +1,13 @@
+/*
+ * EXAMPLE pin map only. Verify all pins against your exact Pro Micro variant.
+ * Candy actuator: P0.10 output to a suitable driver/MOSFET, never directly
+ * drive a solenoid or motor from the nRF GPIO.
+ */
+
+/ {
+    candy_actuator: candy_actuator {
+        compatible = "candy,gpio";
+        gpios = <&gpio0 10 GPIO_ACTIVE_HIGH>;
+        label = "Candy release driver";
+    };
+};

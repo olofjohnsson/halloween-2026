@@ -1,0 +1,13 @@
+# Target labels
+ candy-dispenser
+# Source files and their labels
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/CMakeFiles/candy-dispenser
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/CMakeFiles/candy-dispenser.rule
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/CMakeFiles/candy-dispenser-complete.rule
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/candy-dispenser-prefix/src/candy-dispenser-stamp/candy-dispenser-build.rule
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/candy-dispenser-prefix/src/candy-dispenser-stamp/candy-dispenser-configure.rule
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/candy-dispenser-prefix/src/candy-dispenser-stamp/candy-dispenser-download.rule
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/candy-dispenser-prefix/src/candy-dispenser-stamp/candy-dispenser-install.rule
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/candy-dispenser-prefix/src/candy-dispenser-stamp/candy-dispenser-mkdir.rule
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/candy-dispenser-prefix/src/candy-dispenser-stamp/candy-dispenser-patch.rule
+/home/olof-johnsson/Documents/repos/halloween/candy-dispenser/build/_sysbuild/sysbuild/images/candy-dispenser-prefix/src/candy-dispenser-stamp/candy-dispenser-update.rule
