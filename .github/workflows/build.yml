@@ -58,24 +58,40 @@ jobs:
 
       - name: Collect artifacts
         run: |
-          mkdir -p out
+          mkdir -p out/for-flashing out/for-FOTA
           cd "build/${{ matrix.name }}"
-          # dfu_application.zip is for FOTA; the hex files are for the first SWD flash
-          cp dfu_application.zip "$GITHUB_WORKSPACE/${{ matrix.name }}-dfu.zip"
-          cp mcuboot/zephyr/zephyr.hex "$GITHUB_WORKSPACE/out/mcuboot.hex"
-          cp "${{ matrix.app }}/zephyr/zephyr.signed.hex" "$GITHUB_WORKSPACE/out/app.signed.hex"
+          cp dfu_application.zip "$GITHUB_WORKSPACE/out/for-FOTA/${{ matrix.name }}-dfu.zip"
+          cp mcuboot/zephyr/zephyr.hex "$GITHUB_WORKSPACE/out/for-flashing/${{ matrix.name }}-mcuboot.hex"
+          cp "${{ matrix.app }}/zephyr/zephyr.signed.hex" "$GITHUB_WORKSPACE/out/for-flashing/${{ matrix.name }}-app.signed.hex"
 
-      # Uploaded unarchived: the artifact is the dfu zip itself, named after the file
-      - name: Upload FOTA package
-        uses: actions/upload-artifact@v7
+      # Intermediate artifact, only used by the package job below
+      - uses: actions/upload-artifact@v4
         with:
-          path: ${{ matrix.name }}-dfu.zip
-          archive: false
+          name: build-${{ matrix.name }}
+          path: out/
+          retention-days: 1
           if-no-files-found: error
 
-      - name: Upload first-flash hex files
-        uses: actions/upload-artifact@v7
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.name }}-flash-hex
-          path: out/
+          pattern: build-*
+          merge-multiple: true
+          path: out
+
+      - name: Upload for FOTA
+        uses: actions/upload-artifact@v4
+        with:
+          name: for-FOTA
+          path: out/for-FOTA/*
+          if-no-files-found: error
+
+      - name: Upload for flashing
+        uses: actions/upload-artifact@v4
+        with:
+          name: for-flashing
+          path: out/for-flashing/*
           if-no-files-found: error
