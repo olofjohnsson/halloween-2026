@@ -71,9 +71,21 @@ static void ipv4_event_handler(struct net_mgmt_event_callback *cb,
                                uint64_t mgmt_event, struct net_if *iface)
 {
     ARG_UNUSED(cb);
-    ARG_UNUSED(iface);
 
     if (mgmt_event == NET_EVENT_IPV4_ADDR_ADD) {
+        struct net_if_config *cfg = net_if_get_config(iface);
+
+        if (cfg != NULL && cfg->ip.ipv4 != NULL) {
+            for (int i = 0; i < NET_IF_MAX_IPV4_ADDR; i++) {
+                struct net_if_addr *a = &cfg->ip.ipv4->unicast[i].ipv4;
+                char buf[NET_IPV4_ADDR_LEN];
+
+                if (a->is_used &&
+                    net_addr_ntop(AF_INET, &a->address.in_addr, buf, sizeof(buf))) {
+                    LOG_INF("Got IPv4 address %s", buf);
+                }
+            }
+        }
         online = true;
         k_sem_give(&ip_sem);
     }
@@ -99,14 +111,25 @@ static int wifi_connect(void)
         return -ENODEV;
     }
 
+    LOG_INF("Connecting to Wi-Fi SSID \"%s\" (%s)", CONFIG_HALLOWEEN_WIFI_SSID,
+            params.security == WIFI_SECURITY_TYPE_PSK ? "WPA-PSK" : "open");
     k_sem_reset(&ip_sem);
     int rc = net_mgmt(NET_REQUEST_WIFI_CONNECT, iface, &params, sizeof(params));
 
+    /* -ENOTSUP/-ENETDOWN: the supplicant has not registered the interface yet after boot */
+    for (int i = 0; i < 20 && (rc == -ENOTSUP || rc == -ENETDOWN); i++) {
+        k_sleep(K_MSEC(500));
+        rc = net_mgmt(NET_REQUEST_WIFI_CONNECT, iface, &params, sizeof(params));
+    }
+
     if (rc) {
+        LOG_ERR("Wi-Fi connect request rejected: %d", rc);
         return rc;
     }
 
     if (k_sem_take(&ip_sem, K_SECONDS(WIFI_CONNECT_TIMEOUT_S)) != 0) {
+        LOG_ERR("No IP address within %d s (wrong password, out of range or no DHCP?)",
+                WIFI_CONNECT_TIMEOUT_S);
         (void)net_mgmt(NET_REQUEST_WIFI_DISCONNECT, iface, NULL, 0);
         return -ETIMEDOUT;
     }
@@ -138,6 +161,8 @@ static int post_event(const struct dispense_event *ev)
     int rc;
 
     snprintf(port, sizeof(port), "%d", CONFIG_HALLOWEEN_REPORT_PORT);
+    LOG_INF("POST seq=%u to %s:%s%s", (unsigned int)ev->seq, CONFIG_HALLOWEEN_REPORT_HOST,
+            port, CONFIG_HALLOWEEN_REPORT_PATH);
     rc = zsock_getaddrinfo(CONFIG_HALLOWEEN_REPORT_HOST, port, &hints, &res);
     if (rc != 0) {
         LOG_ERR("Resolving %s failed: %d", CONFIG_HALLOWEEN_REPORT_HOST, rc);
@@ -147,6 +172,7 @@ static int post_event(const struct dispense_event *ev)
     int sock = zsock_socket(res->ai_family, SOCK_STREAM, IPPROTO_TCP);
 
     if (sock < 0) {
+        LOG_ERR("Creating socket failed: %d", errno);
         zsock_freeaddrinfo(res);
         return -errno;
     }
@@ -183,6 +209,7 @@ static int post_event(const struct dispense_event *ev)
 
     rc = http_client_req(sock, &req, HTTP_TIMEOUT_MS, &status);
     zsock_close(sock);
+    LOG_INF("HTTP request returned rc=%d status=%u", rc, status);
 
     if (rc < 0) {
         LOG_ERR("HTTP request failed: %d", rc);
@@ -285,6 +312,9 @@ void report_dispense(uint16_t session)
     }
 
     struct dispense_event ev = { .seq = next_seq++, .session = session };
+
+    LOG_INF("Queueing dispense seq=%u session=%u (online=%d)", (unsigned int)ev.seq,
+            (unsigned int)session, online);
 
     if (k_msgq_put(&event_q, &ev, K_NO_WAIT) != 0) {
         LOG_ERR("Report queue full; dispense seq=%u not reported", (unsigned int)ev.seq);

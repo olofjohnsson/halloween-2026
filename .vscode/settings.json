@@ -1,6 +1,7 @@
 {
     "nrf-connect.applications": [
         "${workspaceFolder}/stations",
-        "${workspaceFolder}/candy-dispenser"
+        "${workspaceFolder}/candy-dispenser",
+        "${workspaceFolder}/release-tester"
     ]
 }

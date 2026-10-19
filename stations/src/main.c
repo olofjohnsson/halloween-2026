@@ -446,6 +446,27 @@ static void announce_new_round(void)
     new_round_until_ms = k_uptime_get() + NEW_ROUND_BEACON_MS;
 }
 
+#if CONFIG_HALLOWEEN_TEST_RELEASE_INTERVAL_S > 0
+/* Test only: ask the dispenser for a candy with a fresh session, without the puzzle. */
+static void test_release(void)
+{
+    uint16_t session;
+
+    do {
+        session = (uint16_t)sys_rand32_get();
+    } while (session == 0 || session == session_id);
+
+    session_id = session;
+    final_code_valid = false;
+    clear_entry();
+    state = ST_RELEASING;
+    update_beacon(MSG_RELEASE_CANDY, DISPENSER_ID, 0);
+    lcd_show_final();
+    LOG_INF("TEST: asking dispenser to release candy (session=%u)", session_id);
+    flash_led(1, 200, 0);
+}
+#endif
+
 static void process_beacon(const struct button_msg *msg)
 {
     /* Station 5 starts a new round after the candy was released. */
@@ -729,6 +750,15 @@ int main(void)
     while (1) {
         if (STATION_ID == LAST_STATION_ID) {
             int64_t now = k_uptime_get();
+
+#if CONFIG_HALLOWEEN_TEST_RELEASE_INTERVAL_S > 0
+            static int64_t next_test_release_ms;
+
+            if (now >= next_test_release_ms) {
+                next_test_release_ms = now + CONFIG_HALLOWEEN_TEST_RELEASE_INTERVAL_S * 1000;
+                test_release();
+            }
+#endif
 
             if (state == ST_ENTER_CODE && !code_hidden &&
                 final_code_deadline_ms != 0 && now >= final_code_deadline_ms) {

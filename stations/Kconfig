@@ -22,6 +22,13 @@ config HALLOWEEN_CODE_DISPLAY_SECONDS
       After this time the LCD hides the code and asks for it; the kids must
       then enter it on station 5's keypad from memory.
 
+config HALLOWEEN_TEST_RELEASE_INTERVAL_S
+    int "TEST: station 5 requests a candy release every N seconds (0 = off)"
+    default 0
+    help
+      Skips the puzzle and keypad for testing the dispenser. Use only via
+      station_5_test.conf, never for the real game.
+
 endmenu
 
 source "Kconfig.zephyr"

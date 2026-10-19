@@ -1,0 +1,10 @@
+default: stations
+build_dir: /home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1
+domains:
+  - name: stations
+    build_dir: /home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/stations
+  - name: mcuboot
+    build_dir: /home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/mcuboot
+flash_order:
+  - mcuboot
+  - stations

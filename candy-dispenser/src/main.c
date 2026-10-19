@@ -30,11 +30,11 @@ LOG_MODULE_REGISTER(candy, LOG_LEVEL_INF);
 #define SERVICE_DATA_LEN (2 + PAYLOAD_LEN)
 
 #define ACTUATOR_PULSE_MS 800 /* fallback when there is no disc switch */
-#define DISC_LEAVE_TIMEOUT_MS 3000
+#define DISC_LEAVE_TIMEOUT_MS 5000
 #define DISC_HOME_TIMEOUT_MS 10000
 
 /* Set to 1 to run only the disc test (driver runs until the switch, repeat). */
-#define DISC_TEST 1
+#define DISC_TEST 0
 
 static const struct gpio_dt_spec actuator =
     GPIO_DT_SPEC_GET(DT_NODELABEL(candy_actuator), gpios);
@@ -63,7 +63,7 @@ static struct bt_data ad[] = {
     BT_DATA(BT_DATA_SVC_DATA16, service_data, sizeof(service_data)),
 };
 
-static void set_beacon(uint8_t type, uint8_t target, uint16_t session)
+static void fill_beacon(uint8_t type, uint8_t target, uint16_t session)
 {
     service_data[0] = (uint8_t)(HALLOWEEN_SERVICE_UUID & 0xff);
     service_data[1] = (uint8_t)(HALLOWEEN_SERVICE_UUID >> 8);
@@ -78,6 +78,11 @@ static void set_beacon(uint8_t type, uint8_t target, uint16_t session)
     service_data[10] = 0;
     service_data[11] = 0;
     service_data[12] = 0;
+}
+
+static void set_beacon(uint8_t type, uint8_t target, uint16_t session)
+{
+    fill_beacon(type, target, session);
 
     int rc = fota_adv_update(ad, ARRAY_SIZE(ad));
     if (rc < 0) {
@@ -140,22 +145,27 @@ static bool wait_disc_switch(bool active, int64_t timeout_ms)
 
 /* Turn the disc one position: run the driver until the disc has left home
  * and come back to the home switch. */
-static void release_candy(void)
+static bool release_candy(void)
 {
+    bool ok = true;
+
     (void)gpio_pin_set_dt(&actuator, 1);
 
 #if HAS_DISC_SWITCH
     if (gpio_pin_get_dt(&disc_switch) == 1 &&
         !wait_disc_switch(false, DISC_LEAVE_TIMEOUT_MS)) {
         LOG_ERR("Disc did not leave home position");
+        ok = false;
     } else if (!wait_disc_switch(true, DISC_HOME_TIMEOUT_MS)) {
         LOG_ERR("Timeout waiting for disc home switch");
+        ok = false;
     }
 #else
     k_msleep(ACTUATOR_PULSE_MS);
 #endif
 
     (void)gpio_pin_set_dt(&actuator, 0);
+    return ok;
 }
 
 #if DISC_TEST && HAS_DISC_SWITCH
@@ -198,7 +208,8 @@ int main(void)
         return 0;
     }
 
-    set_beacon(MSG_IDLE, 0, 0);
+    /* Advertising is not running yet, so only fill the payload (updating would fail with -11) */
+    fill_beacon(MSG_IDLE, 0, 0);
     rc = fota_adv_start(ad, ARRAY_SIZE(ad), "HW-Candy");
     if (rc < 0) {
         LOG_ERR("BLE advertising start failed: %d", rc);
@@ -226,9 +237,14 @@ int main(void)
          * release only once per session and keep confirming it. */
         if (req.session != last_released_session) {
             LOG_INF("Release requested (session=%u)", req.session);
-            release_candy();
+            bool ok = release_candy();
+
             last_released_session = req.session;
-            report_dispense(req.session);
+            if (ok) {
+                report_dispense(req.session);
+            } else {
+                LOG_WRN("Release not confirmed by disc switch; not counted");
+            }
             set_beacon(MSG_CANDY_DONE, LAST_STATION_ID, req.session);
             LOG_INF("Candy released; confirmation advertised");
         }

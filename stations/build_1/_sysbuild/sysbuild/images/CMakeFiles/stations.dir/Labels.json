@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/CMakeFiles/stations"
+		},
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/CMakeFiles/stations.rule"
+		},
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/CMakeFiles/stations-complete.rule"
+		},
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/stations-prefix/src/stations-stamp/stations-build.rule"
+		},
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/stations-prefix/src/stations-stamp/stations-configure.rule"
+		},
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/stations-prefix/src/stations-stamp/stations-download.rule"
+		},
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/stations-prefix/src/stations-stamp/stations-install.rule"
+		},
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/stations-prefix/src/stations-stamp/stations-mkdir.rule"
+		},
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/stations-prefix/src/stations-stamp/stations-patch.rule"
+		},
+		{
+			"file" : "/home/olof-johnsson/Documents/repos/halloween-2026/stations/build_1/_sysbuild/sysbuild/images/stations-prefix/src/stations-stamp/stations-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"stations"
+		],
+		"name" : "stations"
+	}
+}
