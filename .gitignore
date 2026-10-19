@@ -59,3 +59,7 @@ build/
 
 # Local Wi-Fi/server secrets
 wifi_secrets.conf
+
+server.pid
+.venv/
+data/

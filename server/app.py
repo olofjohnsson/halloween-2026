@@ -48,6 +48,19 @@ def dispense():
         return jsonify(count=state["count"])
 
 
+@app.post("/api/reset")
+def reset():
+    if not API_KEY or request.headers.get("X-API-Key") != API_KEY:
+        return jsonify(error="unauthorized"), 401
+    with lock:
+        state = load()
+        # Keep the de-duplication list so retried events are not counted after a reset
+        state["count"] = 0
+        state["last"] = None
+        save(state)
+    return jsonify(count=0)
+
+
 @app.get("/api/count")
 def count():
     with lock:

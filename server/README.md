@@ -3,6 +3,7 @@
 Small Flask app that counts candy dispensed by the nRF7002 DK.
 
 - `POST /api/dispense` (header `X-API-Key`, JSON `{"boot":n,"seq":n,"session":n}`) increments the counter; retries are de-duplicated.
+- `POST /api/reset` (header `X-API-Key`) sets the counter to 0.
 - `GET /api/count` returns `{"count":..,"last":..}`.
 - `GET /` shows the live count page (`static/index.html`).
 
@@ -14,6 +15,8 @@ Small Flask app that counts candy dispensed by the nRF7002 DK.
    (first run creates a virtualenv and installs Flask/Waitress, so the NAS needs internet once).
 4. Run the task, then open `http://<nas-ip>:8080/`.
 5. If the NAS firewall is on, allow TCP 8080 from the LAN.
+
+To restart after updating the files, run the same script again (e.g. a second user-defined Task Scheduler task, run once): `run.sh` stops the previous instance first.
 
 The count is stored in `data/counts.json` next to `app.py`.
 
