@@ -29,6 +29,13 @@ config HALLOWEEN_TEST_RELEASE_INTERVAL_S
       Skips the puzzle and keypad for testing the dispenser. Use only via
       station_5_test.conf, never for the real game.
 
+config HALLOWEEN_TEST_SKIP_PUZZLE
+    bool "TEST: station 5 starts directly at code entry and mirrors the LCD on the UART"
+    default n
+    help
+      Skips the puzzle chain; the code is generated at boot and, after every
+      released candy, once an answer button is pressed. Use only via station_5_code_test.conf, never for the real game.
+
 endmenu
 
 source "Kconfig.zephyr"

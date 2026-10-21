@@ -21,7 +21,7 @@ It is meant for a supervised game, not for security.
 |--------|-------------|
 | [`stations/`](stations/README.md) | Firmware for the five puzzle stations (Pro Micro nRF52840), including the BLE protocol and per-station config (`station_N.conf`). |
 | [`candy-dispenser/`](candy-dispenser/README.md) | Firmware for the candy dispenser (nRF7002 DK, with a Pro Micro alternative). |
-| [`release-tester/`](release-tester/README.md) | nRF52840 DK app that fakes station 5 (Button 1 requests a candy release) for testing the dispenser. |
+| [`tests/release-tester/`](tests/release-tester/README.md) | nRF52840 DK app that fakes station 5 (Button 1 requests a candy release) for testing the dispenser. |
 
 ## Getting started
 

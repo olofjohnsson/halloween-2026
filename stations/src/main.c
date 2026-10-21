@@ -101,6 +101,28 @@ static const struct gpio_dt_spec buttons[] = {
 static const struct gpio_dt_spec led =
     GPIO_DT_SPEC_GET(DT_NODELABEL(halloween_led), gpios);
 
+#if DT_NODE_HAS_STATUS_OKAY(DT_ALIAS(led0))
+/* Board status LED (Pro Micro red LED on P0.15), used only for the boot indication. */
+static const struct gpio_dt_spec boot_led = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
+
+/* Blinks 5 times at start-up so a fresh flash visibly shows the application runs.
+ * Done before the pin is reused (on station 5 P0.15 becomes a keypad column). */
+static void boot_blink(void)
+{
+    if (gpio_pin_configure_dt(&boot_led, GPIO_OUTPUT_INACTIVE) < 0) {
+        return;
+    }
+    for (int i = 0; i < 5; i++) {
+        (void)gpio_pin_set_dt(&boot_led, 1);
+        k_msleep(100);
+        (void)gpio_pin_set_dt(&boot_led, 0);
+        k_msleep(100);
+    }
+}
+#else
+static void boot_blink(void) {}
+#endif
+
 #if STATION_ID == LAST_STATION_ID
 /* Station 5 also has the 4x3 code keypad. Rows are driven low one at a time,
  * columns have pull-ups. Connector order assumed: R1..R4, C1..C3. */
@@ -273,8 +295,6 @@ static void lcd_show_final(void)
     char line1[17];
     char line2[17];
 
-    if (!lcd_ready) return;
-
     if (state == ST_RELEASING) {
         snprintk(line1, sizeof(line1), "CORRECT!");
         snprintk(line2, sizeof(line2), "TAKE YOUR CANDY");
@@ -293,6 +313,13 @@ static void lcd_show_final(void)
             snprintk(line2, sizeof(line2), "> %s", entry);
         }
     }
+
+#if CONFIG_HALLOWEEN_TEST_SKIP_PUZZLE
+    /* Mirror the LCD on the UART so station 5 can be tested without an LCD. */
+    LOG_INF("LCD: [%s] [%s]", line1, line2);
+#endif
+
+    if (!lcd_ready) return;
 
     (void)lcd_command(0x01);
     (void)lcd_print_at(0, 0, line1);
@@ -432,6 +459,8 @@ static void begin_round(uint16_t session)
     }
 }
 
+static void finish_correct_answer(void);
+
 /* Station 5 only: the candy was released, so announce the next round. */
 static void announce_new_round(void)
 {
@@ -442,6 +471,11 @@ static void announce_new_round(void)
     } while (session == 0 || session == session_id);
 
     begin_round(session);
+#if CONFIG_HALLOWEEN_TEST_SKIP_PUZZLE
+    /* Test: stay in WAITING until an answer button is pressed (see main loop). */
+    LOG_INF("TEST: candy released; press any answer button for a new code");
+    return;
+#endif
     update_beacon(MSG_NEW_ROUND, 0, 0);
     new_round_until_ms = k_uptime_get() + NEW_ROUND_BEACON_MS;
 }
@@ -585,6 +619,8 @@ static void update_winning_pattern(void)
 
 static void handle_answer(unsigned int button_number)
 {
+    LOG_INF("Button %u pressed", button_number);
+
     if (state != ST_ACTIVE) {
         return;
     }
@@ -599,26 +635,46 @@ static void handle_answer(unsigned int button_number)
 }
 
 #if STATION_ID == LAST_STATION_ID
-static char keypad_scan_once(void)
+#define KEYPAD_SETTLE_US 50
+#define KEYPAD_RELEASE_MS 15
+#define KEYPAD_POLL_MS 2
+
+/* Returns the key currently pressed (scan only, never blocks). */
+static char keypad_scan_pressed(void)
 {
     for (size_t r = 0; r < ARRAY_SIZE(rows); r++) {
         for (size_t i = 0; i < ARRAY_SIZE(rows); i++) {
             (void)gpio_pin_set_dt(&rows[i], 1); /* inactive/high */
         }
         (void)gpio_pin_set_dt(&rows[r], 0); /* selected row low */
-        k_busy_wait(100);
+        k_busy_wait(KEYPAD_SETTLE_US);
 
         for (size_t c = 0; c < ARRAY_SIZE(cols); c++) {
             if (gpio_pin_get_dt(&cols[c]) == 0) {
-                char key = keymap[r][c];
-                /* Wait for release to avoid repeating a held key. */
-                while (gpio_pin_get_dt(&cols[c]) == 0) {
-                    k_msleep(10);
-                }
-                k_msleep(25);
-                return key;
+                return keymap[r][c];
             }
         }
+    }
+    return '\0';
+}
+
+/* Reports a key the moment it is pressed (lowest latency) and ignores
+ * contact bounce by requiring the key to be released for KEYPAD_RELEASE_MS. */
+static char keypad_poll(void)
+{
+    static char held;
+    static int64_t last_seen_ms;
+    char key = keypad_scan_pressed();
+    int64_t now = k_uptime_get();
+
+    if (key) {
+        last_seen_ms = now;
+        if (key != held) {
+            held = key;
+            return key;
+        }
+    } else if (held && now - last_seen_ms >= KEYPAD_RELEASE_MS) {
+        held = '\0';
     }
     return '\0';
 }
@@ -666,6 +722,8 @@ static void handle_key(char key)
 int main(void)
 {
     int rc;
+
+    boot_blink();
 
     LOG_INF("Halloween station firmware: station %d, correct button %d",
             STATION_ID, CORRECT_BUTTON);
@@ -747,6 +805,13 @@ int main(void)
         LOG_INF("Waiting for activation beacon for station %d", STATION_ID);
     }
 
+#if CONFIG_HALLOWEEN_TEST_SKIP_PUZZLE
+    /* Test: pretend the puzzle was solved and show the code right away. */
+    session_id = (uint16_t)sys_rand32_get() | 1U;
+    finish_correct_answer();
+    LOG_INF("TEST: puzzle skipped, enter the code printed above on the keypad");
+#endif
+
     while (1) {
         if (STATION_ID == LAST_STATION_ID) {
             int64_t now = k_uptime_get();
@@ -787,6 +852,24 @@ int main(void)
 
         update_winning_pattern();
 
+#if CONFIG_HALLOWEEN_TEST_SKIP_PUZZLE
+        if (state == ST_WAITING) {
+            for (size_t i = 0; i < ARRAY_SIZE(buttons); i++) {
+                if (button_is_pressed(&buttons[i])) {
+                    k_msleep(30);
+                    if (button_is_pressed(&buttons[i])) {
+                        while (button_is_pressed(&buttons[i])) {
+                            k_msleep(10);
+                        }
+                        LOG_INF("Button %u pressed", (unsigned int)i + 1);
+                        finish_correct_answer();
+                        break;
+                    }
+                }
+            }
+        }
+#endif
+
         if (state == ST_ACTIVE) {
             for (size_t i = 0; i < ARRAY_SIZE(buttons); i++) {
                 if (button_is_pressed(&buttons[i])) {
@@ -805,11 +888,15 @@ int main(void)
 
 #if STATION_ID == LAST_STATION_ID
         if (state == ST_ENTER_CODE) {
-            handle_key(keypad_scan_once());
+            handle_key(keypad_poll());
         }
 #endif
 
+#if STATION_ID == LAST_STATION_ID
+        k_msleep(state == ST_ENTER_CODE ? KEYPAD_POLL_MS : 10);
+#else
         k_msleep(10);
+#endif
     }
 
     return 0;

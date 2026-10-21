@@ -63,3 +63,5 @@ wifi_secrets.conf
 server.pid
 .venv/
 data/
+
+stations/station_*

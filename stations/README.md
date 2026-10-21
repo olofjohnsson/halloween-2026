@@ -29,6 +29,62 @@ For stations 2 through 5, use the corresponding `station_N.conf` file. Build eac
 
 If your board target is named differently in your board package, use the exact target shown by `west boards`.
 
+## Initial flash with J-Link (pogo-pin fixture)
+
+Only SWD is needed: **SWDIO, SWCLK, GND** and **VTref** (target voltage sense), plus optionally nRESET.
+The J-Link 20-pin to 10-pin adapter is a standard Cortex-M adapter, so the 10-pin connector follows the
+ARM Cortex Debug 10-pin (1.27 mm) pinout. Pin 1 is marked on the connector/ribbon (red wire on the cable).
+
+| 10-pin (Cortex) | Signal | J-Link 20-pin | Needed? |
+|-----------------|--------|---------------|---------|
+| 1 | VTref | 1 | yes (target 3.3 V, so J-Link sees the board) |
+| 2 | SWDIO | 7 | yes |
+| 3 | GND | 4 (also 6, 8, ...) | yes |
+| 4 | SWCLK | 9 | yes |
+| 5 | GND | 6 | optional |
+| 6 | SWO | 13 | no |
+| 7 | KEY (no pin) | none | no |
+| 8 | NC/TDI | 5 | no |
+| 9 | GND detect | 14 | no |
+| 10 | nRESET | 15 | optional |
+
+Without the adapter, connect directly to the J-Link 20-pin connector (2x10, 2.54 mm, pin 1 marked/red wire,
+odd pins on one row and even pins on the other). Only these pins are needed:
+
+| J-Link 20-pin | Signal | Connect to |
+|---------------|--------|------------|
+| 1 | VTref | board 3.3 V |
+| 7 | SWDIO (TMS) | Pro Micro SWDIO |
+| 9 | SWCLK (TCK) | Pro Micro SWCLK |
+| 4 (or any even pin: 6, 8, 10 ...) | GND | board GND |
+| 15 | nRESET | board reset (optional) |
+
+Pin 19 is a 5 V supply output from the J-Link: leave it unconnected, it must never go to a 3.3 V pad.
+
+My wire colors:
+
+| Color | Signal | J-Link 20-pin |
+|-------|--------|---------------|
+| Yellow | VDD (3.3 V, to VTref) | 1 |
+| Red | SWDIO | 7 |
+| Orange | SWCLK | 9 |
+| Brown | GND | 4 |
+
+Fixture mapping (fill in by continuity-testing the fixture from the 10-pin connector to each pogo pin and
+to the board pad it touches; then it never has to be rediscovered):
+
+| 10-pin connector pin | Signal | Pogo pin / color | Pro Micro pad |
+|----------------------|--------|------------------|---------------|
+| 1 | VTref | | |
+| 2 | SWDIO | | |
+| 3 | GND | | |
+| 4 | SWCLK | | |
+| 10 | nRESET | | |
+
+Check: with the board powered over USB, J-Link should report the target voltage ~3.3 V and
+`west flash` (or `nrfutil device list`) should find an nRF52840. Swapped SWDIO/SWCLK or a missing GND are the usual faults.
+Locate the Pro Micro's SWDIO/SWCLK pads from your exact board's schematic; they are not the same on every clone.
+
 ## FOTA (over-the-air updates)
 
 Every station can be updated from a phone with the **nRF Connect Device Manager** app (MCUboot + MCUmgr SMP over BLE).
@@ -69,7 +125,7 @@ Message payload:
 - On a correct code station 5 advertises `MSG_RELEASE_CANDY`; the dispenser (balcony, no cables to station 5) releases one candy and answers with `MSG_CANDY_DONE`.
 - Station 5 then broadcasts `MSG_NEW_ROUND` with a new session for 60 s. All stations reset (station 1 active, others waiting).
 
-Station 5 pins (example, verify): keypad rows P0.06, P0.07, P0.12, P0.13, columns P0.15, P0.17, P0.20; buttons P0.02-P0.04; LED P0.05; LCD I2C SDA P0.08 / SCL P0.11. Keypad connector order assumed R1-R4, C1-C3.
+Station 5 pins (example, verify): keypad rows P0.08, P1.00, P0.24, P0.20, columns P0.17, P0.06, P0.22; buttons P0.02-P0.04; LED P0.05; LCD I2C SDA P0.31 / SCL P0.29. Keypad connector order assumed R1-R4, C1-C3.
 
 The simple 16-bit session ID is for avoiding accidental cross-game activation, not security. This protocol is suitable for a supervised Halloween game, not access control.
 
@@ -99,6 +155,35 @@ printed on each station:
 - Use RTT/UART logs to check station state transitions.
 
 
+## Station 5 keypad (HALJIA 4x3, 7 pins)
+
+**Code test with the candy dispenser:** build station 5 on a DK with
+`west build -b nrf52840dk/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_5_code_test.conf`.
+It skips the puzzle and mirrors the LCD on the UART (`LCD: [CODE: 123456] [> 12]`), so read the code
+from the log and type it on the keypad (`#` submits, `*` clears). A correct code makes station 5 request a
+release from the dispenser; once the dispenser confirms, press any answer button to get a new code.
+
+The 12-key membrane keypad is a matrix: 4 row lines + 3 column lines = 7 pins.
+Measured pinout of this keypad (ribbon pin numbers, each key shorts two pins):
+R1 = pin 2, R2 = pin 7, R3 = pin 6, R4 = pin 4, C1 = pin 3, C2 = pin 1, C3 = pin 5.
+Wire as follows (Pro Micro nRF52840, 3.3 V logic, no resistors needed, columns use internal pull-ups):
+
+| Keypad ribbon pin | Line | Keys | Pro Micro GPIO |
+|-------------------|------|------|----------------|
+| 2 | Row 1 | 1 2 3 | P0.08 |
+| 7 | Row 2 | 4 5 6 | P1.00 |
+| 6 | Row 3 | 7 8 9 | P0.24 |
+| 4 | Row 4 | * 0 # | P0.20 |
+| 3 | Column 1 | 1 4 7 * | P0.17 |
+| 1 | Column 2 | 2 5 8 0 | P0.06 |
+| 5 | Column 3 | 3 6 9 # | P0.22 |
+
+If you prefer other pins, change `krow1..krow4` / `kcol1..kcol3` in
+`boards/promicro_nrf52840_nrf52840.overlay` (and the pin list above) and rebuild with `-p always`.
+On the nRF52840 DK, connect ribbon pin N to P1.0N (pin 1 to P1.01 ... pin 7 to P1.07) and build with
+`-b nrf52840dk/nrf52840 -- -DEXTRA_CONF_FILE=station_5.conf`; the DK overlay already maps them.
+To test: build with `station_5.conf`, reach the code entry screen and check that each key shows on the LCD.
+
 ## Station 5 LCD
 
 The prototype includes a small PCF8574/HD44780 4-bit LCD driver directly in
@@ -106,7 +191,7 @@ The prototype includes a small PCF8574/HD44780 4-bit LCD driver directly in
 - I2C controller `i2c0`;
 - 7-bit address `0x27`;
 - common backpack bit mapping: P0=RS, P1=RW, P2=E, P3=backlight, P4..P7=D4..D7;
-- example SDA P0.08 and SCL P0.11.
+- example SDA P0.31 and SCL P0.29.
 
 These assumptions vary by seller and backpack. If the LCD is not detected,
 verify its address (often 0x27 or 0x3f), bit mapping, and pinctrl settings.
