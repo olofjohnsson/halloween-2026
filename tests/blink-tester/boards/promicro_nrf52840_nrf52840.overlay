@@ -1,0 +1,9 @@
+/* Blink output on P0.15 (the Pro Micro's LED, assumed active high). */
+/ {
+    blink_leds {
+        compatible = "gpio-leds";
+        blink_led: blink_led {
+            gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+        };
+    };
+};

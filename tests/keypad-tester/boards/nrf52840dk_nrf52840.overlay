@@ -1,0 +1,16 @@
+/*
+ * HALJIA 4x3 keypad ribbon pin N is wired to P1.0N (pin 1 -> P1.01 ... pin 7 -> P1.07).
+ * Measured keypad pinout: R1=pin2, R2=pin7, R3=pin6, R4=pin4, C1=pin3, C2=pin1, C3=pin5.
+ */
+/ {
+    halloween_keypad {
+        krow1: krow_1 { compatible = "halloween,gpio"; gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>; };
+        krow2: krow_2 { compatible = "halloween,gpio"; gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>; };
+        krow3: krow_3 { compatible = "halloween,gpio"; gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>; };
+        krow4: krow_4 { compatible = "halloween,gpio"; gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>; };
+
+        kcol1: kcol_1 { compatible = "halloween,gpio"; gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>; };
+        kcol2: kcol_2 { compatible = "halloween,gpio"; gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>; };
+        kcol3: kcol_3 { compatible = "halloween,gpio"; gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>; };
+    };
+};
