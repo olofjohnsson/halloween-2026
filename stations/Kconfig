@@ -83,6 +83,25 @@ config HALLOWEEN_DISPENSER_TRACK
     range 0 255
     default 0
 
+config HALLOWEEN_TEST_PINGPONG
+    bool "TEST: stations 1 and 2 hand over to each other (1 -> 2 -> 1 -> ...)"
+    default n
+    help
+      Station 1 is active from boot; a correct answer deactivates it and
+      activates station 2, whose correct answer activates station 1 again.
+      Use only via station_1_pingpong.conf / station_2_pingpong.conf.
+
+config HALLOWEEN_TEST_PINGPONG_KEYPAD
+    bool "TEST: a fixed code typed on the keypad also passes the activation on"
+    depends on HALLOWEEN_TEST_PINGPONG
+    help
+      The station needs the 4x3 keypad wired as on station 5. '#' submits, '*' clears.
+
+config HALLOWEEN_TEST_PINGPONG_CODE
+    string "TEST: fixed keypad code (digits only, avoid 4, 5, 6)"
+    default "1237"
+    depends on HALLOWEEN_TEST_PINGPONG_KEYPAD
+
 endmenu
 
 source "Kconfig.zephyr"

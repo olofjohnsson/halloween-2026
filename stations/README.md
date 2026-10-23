@@ -9,7 +9,7 @@ Prototype firmware for five Pro Micro nRF52840 stations. Each station has:
 ## Important hardware note
 
 `boards/promicro_nrf52840_nrf52840.overlay` uses example GPIO numbers:
-- buttons: P0.02, P0.03, P0.04
+- buttons: P0.08 (btn 1), P0.17 (btn 2), P0.20 (btn 3)
 - LED MOSFET control: P0.05
 
 Verify that these pins are exposed and unused on your exact Pro Micro board. The LED GPIO is a logic output only; do not power an LED strip directly from an nRF52840 GPIO. Use a suitable MOSFET/driver and a separately powered LED supply with common ground as appropriate.
@@ -126,13 +126,21 @@ and `MSG_RELEASE_CANDY` (value = track the dispenser plays) use the track field 
 - Station 1 starts active with a random session. After a correct answer, stations 1-4 repeatedly advertise `MSG_ACTIVATE` for the next station.
 - A waiting station accepts an activation only if it has no session yet or the session matches its own, so stale activations from an earlier round are ignored.
 - When the next station has activated and answers with the same session, the previous station stops advertising the activation (acknowledge), so a rebooted station cannot be re-activated by an old beacon.
-- Station 5 (LCD + keypad) generates a random six-digit code and shows it for `CONFIG_HALLOWEEN_CODE_DISPLAY_SECONDS` (default 15 s, 0 = always), then hides it. The kids type it on the keypad: digits are shown on the LCD, `*` clears, `#` submits (`WRONG CODE!` / `NEED 6 DIGITS` on errors). The code never leaves station 5.
+- Station 5 (LCD + keypad) generates a random six-digit code (never containing 4, 5 or 6, since those keypad keys are broken) and shows it for `CONFIG_HALLOWEEN_CODE_DISPLAY_SECONDS` (default 15 s, 0 = always), then hides it. The kids type it on the keypad: digits are shown on the LCD, `*` clears, `#` submits (`WRONG CODE!` / `NEED 6 DIGITS` on errors). The code never leaves station 5.
 - On a correct code station 5 advertises `MSG_RELEASE_CANDY`; the dispenser (balcony, no cables to station 5) releases one candy and answers with `MSG_CANDY_DONE`.
 - Station 5 then broadcasts `MSG_NEW_ROUND` with a new session for 60 s. All stations reset (station 1 active, others waiting).
 
-Station 5 pins (example, verify): keypad rows P0.08, P1.00, P0.24, P0.20, columns P0.17, P0.06, P0.22; buttons P0.02-P0.04; LED P0.05; LCD I2C SDA P0.31 / SCL P0.29. Keypad connector order assumed R1-R4, C1-C3.
+Station 5 pins (example, verify): keypad ribbon pins 1..7 on P0.31, P0.29, P0.02, P1.15, P1.13, P1.11, P0.06; buttons P0.08, P0.17, P0.20; LED P0.05; LCD I2C SDA P1.04 / SCL P1.06. Keypad connector order assumed R1-R4, C1-C3.
 
 The simple 16-bit session ID is for avoiding accidental cross-game activation, not security. This protocol is suitable for a supervised Halloween game, not access control.
+
+## Testing stations 1 and 2 (ping-pong)
+
+Build station 1 and 2 with `-DEXTRA_CONF_FILE=station_1_pingpong.conf` / `station_2_pingpong.conf`. Station 1 is
+active from boot; its correct button deactivates it and activates station 2, whose correct button activates
+station 1 again, and so on. If the keypad is wired to the station, add `CONFIG_HALLOWEEN_TEST_PINGPONG_KEYPAD=y`
+(see `station_1_pingpong.conf`): typing the fixed code (`CONFIG_HALLOWEEN_TEST_PINGPONG_CODE`, default 1237) followed by `#`
+also passes the activation on (`*` clears). Power both at the same time so they share a session. Test only, not for the real game.
 
 ## Sound (DFPlayer Mini)
 
@@ -180,14 +188,16 @@ printed on each station:
 
 - Use `west build -p always` after changing the overlay.
 - Check the generated `build/zephyr/zephyr.dts` to verify the GPIO mapping.
-- Use RTT/UART logs to check station state transitions.
+- Use RTT/UART logs to check station state transitions. Pro Micro builds log over RTT
+  (`boards/promicro_nrf52840_nrf52840.conf`); view it with the J-Link attached, e.g. `JLinkRTTViewer`
+  or the RTT viewer in nRF Connect for VS Code / `nrfutil rtt`. Use `west build -p always` after adding it.
 
 
 ## Station 5 keypad (HALJIA 4x3, 7 pins)
 
 **Code test with the candy dispenser:** build station 5 on a DK with
 `west build -b nrf52840dk/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_5_code_test.conf`.
-It skips the puzzle and mirrors the LCD on the UART (`LCD: [CODE: 123456] [> 12]`), so read the code
+It skips the puzzle and mirrors the LCD on the UART (`LCD: [CODE: 123789] [> 12]`), so read the code
 from the log and type it on the keypad (`#` submits, `*` clears). A correct code makes station 5 request a
 release from the dispenser; once the dispenser confirms, press any answer button to get a new code.
 
@@ -198,13 +208,13 @@ Wire as follows (Pro Micro nRF52840, 3.3 V logic, no resistors needed, columns u
 
 | Keypad ribbon pin | Line | Keys | Pro Micro GPIO |
 |-------------------|------|------|----------------|
-| 2 | Row 1 | 1 2 3 | P0.08 |
-| 7 | Row 2 | 4 5 6 | P1.00 |
-| 6 | Row 3 | 7 8 9 | P0.24 |
-| 4 | Row 4 | * 0 # | P0.20 |
-| 3 | Column 1 | 1 4 7 * | P0.17 |
-| 1 | Column 2 | 2 5 8 0 | P0.06 |
-| 5 | Column 3 | 3 6 9 # | P0.22 |
+| 2 | Row 1 | 1 2 3 | P0.29 |
+| 7 | Row 2 | 4 5 6 | P0.06 |
+| 6 | Row 3 | 7 8 9 | P1.11 |
+| 4 | Row 4 | * 0 # | P1.15 |
+| 3 | Column 1 | 1 4 7 * | P0.02 |
+| 1 | Column 2 | 2 5 8 0 | P0.31 |
+| 5 | Column 3 | 3 6 9 # | P1.13 |
 
 If you prefer other pins, change `krow1..krow4` / `kcol1..kcol3` in
 `boards/promicro_nrf52840_nrf52840.overlay` (and the pin list above) and rebuild with `-p always`.
@@ -219,7 +229,7 @@ The prototype includes a small PCF8574/HD44780 4-bit LCD driver directly in
 - I2C controller `i2c0`;
 - 7-bit address `0x27`;
 - common backpack bit mapping: P0=RS, P1=RW, P2=E, P3=backlight, P4..P7=D4..D7;
-- example SDA P0.31 and SCL P0.29.
+- example SDA P1.04 and SCL P1.06.
 
 These assumptions vary by seller and backpack. If the LCD is not detected,
 verify its address (often 0x27 or 0x3f), bit mapping, and pinctrl settings.

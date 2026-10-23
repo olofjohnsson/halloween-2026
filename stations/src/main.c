@@ -31,6 +31,24 @@ LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
 #define CORRECT_BUTTON CONFIG_HALLOWEEN_CORRECT_BUTTON
 #define LAST_STATION_ID 5
 
+#if CONFIG_HALLOWEEN_TEST_PINGPONG_KEYPAD && !CONFIG_HALLOWEEN_TEST_PINGPONG
+#error "CONFIG_HALLOWEEN_TEST_PINGPONG_KEYPAD needs CONFIG_HALLOWEEN_TEST_PINGPONG"
+#endif
+
+#if STATION_ID == LAST_STATION_ID || CONFIG_HALLOWEEN_TEST_PINGPONG_KEYPAD
+#define HAS_KEYPAD 1
+#endif
+
+#if CONFIG_HALLOWEEN_TEST_PINGPONG
+#if STATION_ID > 2
+#error "CONFIG_HALLOWEEN_TEST_PINGPONG only works for stations 1 and 2"
+#endif
+/* Test: stations 1 and 2 hand over to each other forever. */
+#define NEXT_STATION_ID (STATION_ID == 1 ? 2 : 1)
+#else
+#define NEXT_STATION_ID (STATION_ID + 1)
+#endif
+
 /* Common PCF8574 I2C backpack defaults. Confirm address and bit mapping
  * against the exact LCD module; 0x27 is common, 0x3f is also used. */
 #define LCD_I2C_ADDR 0x27
@@ -64,6 +82,8 @@ LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
 #define MSG_PLAY_TRACK 8
 #define DISPENSER_ID 0
 #define PLAY_BEACON_MS 3000
+/* Set in the track field of MSG_IDLE by a station that was just activated: "I got your activation". */
+#define IDLE_ACTIVE_FLAG 0x8000
 #define NEW_ROUND_BEACON_MS 60000
 #define STATUS_SHOW_MS 2000
 #define CODE_LEN 6
@@ -111,8 +131,7 @@ static const struct gpio_dt_spec led =
 /* Board status LED (Pro Micro red LED on P0.15), used only for the boot indication. */
 static const struct gpio_dt_spec boot_led = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
 
-/* Blinks 5 times at start-up so a fresh flash visibly shows the application runs.
- * Done before the pin is reused (on station 5 P0.15 becomes a keypad column). */
+/* Blinks 5 times at start-up so a fresh flash visibly shows the application runs. */
 static void boot_blink(void)
 {
     if (gpio_pin_configure_dt(&boot_led, GPIO_OUTPUT_INACTIVE) < 0) {
@@ -129,7 +148,7 @@ static void boot_blink(void)
 static void boot_blink(void) {}
 #endif
 
-#if STATION_ID == LAST_STATION_ID
+#ifdef HAS_KEYPAD
 /* Station 5 also has the 4x3 code keypad. Rows are driven low one at a time,
  * columns have pull-ups. Connector order assumed: R1..R4, C1..C3. */
 static const struct gpio_dt_spec rows[] = {
@@ -352,6 +371,10 @@ static void set_led(bool on)
     if (rc < 0) {
         LOG_ERR("LED GPIO write failed: %d", rc);
     }
+#if DT_NODE_HAS_STATUS_OKAY(DT_ALIAS(led0))
+    /* Mirror on the board LED (Pro Micro P0.15) so the active state is visible. */
+    (void)gpio_pin_set_dt(&boot_led, on ? 1 : 0);
+#endif
 }
 
 static void flash_led(unsigned int count, int on_ms, int off_ms)
@@ -590,7 +613,9 @@ static void process_beacon(const struct button_msg *msg)
      * so stop advertising it (a stale activation could re-trigger a reboot). */
     if (state == ST_COMPLETED && STATION_ID < LAST_STATION_ID &&
         !activation_acked &&
-        msg->source > STATION_ID &&
+        ((msg->type == MSG_IDLE && (msg->value & IDLE_ACTIVE_FLAG)) ||
+         msg->type == MSG_PLAY_TRACK) &&
+        msg->source >= NEXT_STATION_ID &&
         msg->session == session_id) {
         activation_acked = true;
         update_beacon(MSG_IDLE, 0, 0);
@@ -601,18 +626,20 @@ static void process_beacon(const struct button_msg *msg)
     /* Accept activation only from our own round (or if we have not synced yet). */
     if (msg->type == MSG_ACTIVATE &&
         msg->target == STATION_ID &&
-        STATION_ID != 1 &&
-        state == ST_WAITING &&
+        (STATION_ID != 1 || IS_ENABLED(CONFIG_HALLOWEEN_TEST_PINGPONG)) &&
+        (state == ST_WAITING ||
+         (IS_ENABLED(CONFIG_HALLOWEEN_TEST_PINGPONG) && state == ST_COMPLETED)) &&
         (session_id == 0 || msg->session == session_id)) {
         session_id = msg->session;
         if (session_id == 0) {
             session_id = 1;
         }
         state = ST_ACTIVE;
+        activation_acked = false;
         set_led(true);
         LOG_INF("Station %d ACTIVE (source=%d session=%u)",
                 STATION_ID, msg->source, session_id);
-        update_beacon(MSG_IDLE, 0, 0);
+        update_beacon(MSG_IDLE, 0, IDLE_ACTIVE_FLAG);
         dfplayer_play(VALUE_TRACK(msg->value));
         on_station_active();
     }
@@ -624,6 +651,23 @@ static bool button_is_pressed(const struct gpio_dt_spec *button)
     return value > 0;
 }
 
+/* Six digits without 4, 5, 6 (those keys are unusable on the keypad); no leading 0. */
+static uint32_t generate_code(void)
+{
+    static const char digits[] = {0, 1, 2, 3, 7, 8, 9};
+    uint32_t code = 0;
+
+    for (int i = 0; i < CODE_LEN; i++) {
+        uint32_t d;
+
+        do {
+            d = (uint32_t)digits[sys_rand32_get() % ARRAY_SIZE(digits)];
+        } while (i == 0 && d == 0);
+        code = code * 10 + d;
+    }
+    return code;
+}
+
 static void finish_correct_answer(void)
 {
     state = ST_COMPLETED;
@@ -632,12 +676,11 @@ static void finish_correct_answer(void)
     if (STATION_ID < LAST_STATION_ID) {
         /* Keep this message in the advertising payload so it is repeated until
          * the next station receives it. The next station only accepts it once. */
-        update_beacon(MSG_ACTIVATE, STATION_ID + 1, CONFIG_HALLOWEEN_NEXT_STATION_TRACK);
+        update_beacon(MSG_ACTIVATE, NEXT_STATION_ID, CONFIG_HALLOWEEN_NEXT_STATION_TRACK);
         LOG_INF("Station %d completed; advertising activation for station %d",
-                STATION_ID, STATION_ID + 1);
+                STATION_ID, NEXT_STATION_ID);
     } else {
-        /* 100000..999999, fits in the protocol's 24-bit value field. */
-        final_code = 100000U + (sys_rand32_get() % 900000U);
+        final_code = generate_code();
         final_code_valid = true;
         code_hidden = false;
         final_code_deadline_ms = (CODE_DISPLAY_MS > 0) ?
@@ -697,7 +740,7 @@ static void handle_answer(unsigned int button_number)
     start_winning_pattern();
 }
 
-#if STATION_ID == LAST_STATION_ID
+#ifdef HAS_KEYPAD
 #define KEYPAD_SETTLE_US 50
 #define KEYPAD_RELEASE_MS 15
 #define KEYPAD_POLL_MS 2
@@ -742,6 +785,7 @@ static char keypad_poll(void)
     return '\0';
 }
 
+#if STATION_ID == LAST_STATION_ID
 static void handle_key(char key)
 {
     if (!key || state != ST_ENTER_CODE) return;
@@ -780,6 +824,42 @@ static void handle_key(char key)
 
     lcd_show_final();
 }
+#endif /* STATION_ID == LAST_STATION_ID */
+
+#if CONFIG_HALLOWEEN_TEST_PINGPONG_KEYPAD
+#define PP_CODE CONFIG_HALLOWEEN_TEST_PINGPONG_CODE
+static char pp_entry[sizeof(PP_CODE)];
+static size_t pp_entry_len;
+
+/* Test: the fixed code ('#' submits, '*' clears) is a second way to pass the activation on. */
+static void handle_pingpong_key(char key)
+{
+    if (!key || state != ST_ACTIVE) {
+        return;
+    }
+
+    LOG_INF("Key '%c'", key);
+
+    if (key == '*') {
+        pp_entry_len = 0;
+    } else if (key == '#') {
+        bool ok = pp_entry_len == strlen(PP_CODE) &&
+                  memcmp(pp_entry, PP_CODE, pp_entry_len) == 0;
+
+        LOG_INF("Entered %.*s, expected %s", (int)pp_entry_len, pp_entry, PP_CODE);
+        pp_entry_len = 0;
+        if (ok) {
+            LOG_INF("Correct code at station %d", STATION_ID);
+            start_winning_pattern();
+        } else {
+            LOG_INF("Wrong code at station %d", STATION_ID);
+            flash_led(3, 100, 100);
+        }
+    } else if (key >= '0' && key <= '9' && pp_entry_len < strlen(PP_CODE)) {
+        pp_entry[pp_entry_len++] = key;
+    }
+}
+#endif
 #endif
 
 int main(void)
@@ -805,7 +885,7 @@ int main(void)
         }
     }
 
-#if STATION_ID == LAST_STATION_ID
+#ifdef HAS_KEYPAD
     for (size_t i = 0; i < ARRAY_SIZE(rows); i++) {
         rc = gpio_pin_configure_dt(&rows[i], GPIO_OUTPUT_ACTIVE);
         if (rc < 0) {
@@ -839,7 +919,11 @@ int main(void)
         return 0;
     }
 
+#if CONFIG_HALLOWEEN_TEST_PINGPONG
+    static const char fota_name[] = "pingpong" STRINGIFY(STATION_ID);
+#else
     static const char fota_name[] = "HW-Station" STRINGIFY(STATION_ID);
+#endif
 
     rc = fota_adv_start(ad, ARRAY_SIZE(ad), fota_name);
     if (rc < 0) {
@@ -963,9 +1047,14 @@ int main(void)
             handle_key(keypad_poll());
         }
 #endif
+#if CONFIG_HALLOWEEN_TEST_PINGPONG_KEYPAD
+        if (state == ST_ACTIVE) {
+            handle_pingpong_key(keypad_poll());
+        }
+#endif
 
-#if STATION_ID == LAST_STATION_ID
-        k_msleep(state == ST_ENTER_CODE ? KEYPAD_POLL_MS : 10);
+#ifdef HAS_KEYPAD
+        k_msleep((state == ST_ENTER_CODE || state == ST_ACTIVE) ? KEYPAD_POLL_MS : 10);
 #else
         k_msleep(10);
 #endif
