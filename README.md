@@ -51,9 +51,11 @@ See the folder READMEs for pin assignments, wiring notes, and troubleshooting.
 
 ## Firmware updates (FOTA)
 
-All boards run MCUboot and can be updated over BLE from a phone with the nRF Connect Device
-Manager app. The first flash of each board is over SWD; after that, upload the
-`build/dfu_application.zip` from the build. Details are in the folder READMEs.
+The stations run MCUboot and can be updated over BLE from a phone with the nRF Connect Device
+Manager app. The first flash of each station is over SWD; after that, upload the
+`build/dfu_application.zip` from the build. The candy dispenser has no FOTA (its Wi-Fi firmware
+is too large for an MCUboot slot) and is always flashed over USB/J-Link with `west flash`.
+Details are in the folder READMEs.
 
 ## Status
 
