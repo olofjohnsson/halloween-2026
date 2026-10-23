@@ -8,7 +8,7 @@ on the balcony releases a handful of candy for the kids to share.
 
 1. **Stations 1-4** each ask a question with three answer buttons. A correct answer
    makes the station celebrate with its LED and activates the next station.
-2. **Station 5** shows a random six-digit code on an LCD. The kids type it on a keypad.
+2. **Station 5** shows a random six-digit code on an LCD (the LCD is off while the station is waiting). The kids type it on a keypad.
 3. On a correct code, station 5 asks the **candy dispenser** to release a handful of candy.
 4. The dispenser confirms, station 5 starts a new round, and all stations reset.
 
@@ -19,9 +19,13 @@ It is meant for a supervised game, not for security.
 
 | Folder | Description |
 |--------|-------------|
-| [`stations/`](stations/README.md) | Firmware for the five puzzle stations (Pro Micro nRF52840), including the BLE protocol and per-station config (`station_N.conf`). |
+| [`stations/`](stations/README.md) | Firmware for the five puzzle stations (Pro Micro nRF52840 for stations 1-4, nRF52840 DK for station 5), including the BLE protocol and per-station config (`station_N.conf`). |
 | [`candy-dispenser/`](candy-dispenser/README.md) | Firmware for the candy dispenser (nRF7002 DK, with a Pro Micro alternative). |
 | [`tests/release-tester/`](tests/release-tester/README.md) | nRF52840 DK app that fakes station 5 (Button 1 requests a candy release) for testing the dispenser. |
+| [`tests/keypad-tester/`](tests/keypad-tester/README.md) | nRF52840 DK app that logs every key press of the station 5 keypad. |
+| [`tests/lcd-tester/`](tests/lcd-tester/README.md) | nRF52840 DK app that scans I2C and exercises the station 5 LCD. |
+| [`tests/dfplayer-tester/`](tests/dfplayer-tester/README.md) | nRF52840 DK app for testing the DFPlayer Mini sound module. |
+| [`tests/blink-tester/`](tests/blink-tester/README.md) | Pro Micro app that blinks an LED to check the board and flashing. |
 
 ## Getting started
 
@@ -33,6 +37,9 @@ From the NCS toolchain environment:
 cd stations
 west build -b promicro_nrf52840/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_1.conf
 west flash
+
+# Station 5 runs on an nRF52840 DK
+west build -b nrf52840dk/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_5.conf
 
 # The candy dispenser
 cd candy-dispenser
