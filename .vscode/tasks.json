@@ -1,0 +1,54 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build station and copy FOTA zip",
+            "type": "shell",
+            "command": "./build_fota.sh ${input:station} ${input:fotaDir}",
+            "options": {
+                "cwd": "${workspaceFolder}/stations"
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Build candy dispenser and copy hex files",
+            "type": "shell",
+            "command": "./build_hex.sh ${input:dispenserDir}",
+            "options": {
+                "cwd": "${workspaceFolder}/candy-dispenser"
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "dispenserDir",
+            "type": "promptString",
+            "description": "Folder to copy the dispenser hex files to",
+            "default": "/home/olof-johnsson/Documents/repos/halloween-2026/build"
+        },
+        {
+            "id": "station",
+            "type": "pickString",
+            "description": "Station to build",
+            "options": ["1", "2", "3", "4", "5"],
+            "default": "1"
+        },
+        {
+            "id": "fotaDir",
+            "type": "promptString",
+            "description": "Folder to copy the FOTA zip to",
+            "default": "/home/olof-johnsson/Documents/repos/halloween-2026/build"
+        }
+    ]
+}

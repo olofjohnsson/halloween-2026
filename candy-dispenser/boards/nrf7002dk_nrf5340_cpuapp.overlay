@@ -18,3 +18,13 @@
         label = "Candy release driver";
     };
 };
+
+/*
+ * DFPlayer Mini on the Arduino serial port (UART1: TX P1.01 = D1, RX P1.00 = D0), 9600 8N1,
+ * used when CONFIG_HALLOWEEN_DFPLAYER=y. The Arduino header is 1.8 V logic, so the DFPlayer
+ * (3.3 V) needs a level shifter, or at least a divider on its TX line.
+ */
+dfplayer_uart: &uart1 {
+    status = "okay";
+    current-speed = <9600>;
+};

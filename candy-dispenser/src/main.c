@@ -11,6 +11,7 @@
 #include <zephyr/logging/log.h>
 
 #include "fota.h"
+#include "dfplayer.h"
 #include "report.h"
 
 LOG_MODULE_REGISTER(candy, LOG_LEVEL_INF);
@@ -23,6 +24,7 @@ LOG_MODULE_REGISTER(candy, LOG_LEVEL_INF);
 #define MSG_IDLE 3
 #define MSG_RELEASE_CANDY 4 /* station 5 -> dispenser */
 #define MSG_CANDY_DONE 7    /* dispenser -> station 5 */
+#define MSG_PLAY_TRACK 8    /* any station -> dispenser: play a track */
 #define LAST_STATION_ID 5
 #define DISPENSER_ID 0
 
@@ -47,9 +49,23 @@ static const struct gpio_dt_spec disc_switch =
 #define HAS_DISC_SWITCH 0
 #endif
 
+/* Value field: bits 0..15 = DFPlayer track (0 = none), bits 16..23 = sequence (MSG_PLAY_TRACK). */
 struct release_request {
+    uint8_t type;
+    uint8_t source;
+    uint8_t seq;
     uint16_t session;
+    uint16_t track;
 };
+
+#if CONFIG_HALLOWEEN_DFPLAYER
+#if !DT_NODE_EXISTS(DT_NODELABEL(dfplayer_uart))
+#error "CONFIG_HALLOWEEN_DFPLAYER needs a dfplayer_uart node in the board overlay"
+#endif
+static const struct device *const dfplayer_dev = DEVICE_DT_GET(DT_NODELABEL(dfplayer_uart));
+#endif
+
+static uint8_t last_play_seq[LAST_STATION_ID + 1];
 
 /* BLE scan callback runs outside the main thread; queue requests for it. */
 K_MSGQ_DEFINE(release_msgq, sizeof(struct release_request), 4, 4);
@@ -105,12 +121,19 @@ static bool parse_service_data(struct bt_data *data, void *user_data)
 
     const uint8_t *p = data->data + 2;
     if (p[0] != MAGIC_0 || p[1] != MAGIC_1 || p[2] != PROTOCOL_VERSION ||
-        p[3] != MSG_RELEASE_CANDY || p[4] != DISPENSER_ID ||
-        p[5] != LAST_STATION_ID) {
+        p[4] != DISPENSER_ID) {
+        return true;
+    }
+    if (!(p[3] == MSG_RELEASE_CANDY && p[5] == LAST_STATION_ID) &&
+        !(p[3] == MSG_PLAY_TRACK && p[5] >= 1 && p[5] <= LAST_STATION_ID)) {
         return true;
     }
 
+    out->type = p[3];
+    out->source = p[5];
     out->session = (uint16_t)p[6] | ((uint16_t)p[7] << 8);
+    out->track = (uint16_t)p[8] | ((uint16_t)p[9] << 8);
+    out->seq = p[10];
     return false;
 }
 
@@ -123,7 +146,7 @@ static void device_found(const bt_addr_le_t *addr, int8_t rssi,
 
     struct release_request req = {0};
     bt_data_parse(ad_buf, parse_service_data, &req);
-    if (req.session != 0) {
+    if (req.type != 0) {
         (void)k_msgq_put(&release_msgq, &req, K_NO_WAIT);
     }
 }
@@ -223,6 +246,10 @@ int main(void)
         return 0;
     }
 
+#if CONFIG_HALLOWEEN_DFPLAYER
+    (void)dfplayer_init(dfplayer_dev, CONFIG_HALLOWEEN_DFPLAYER_VOLUME);
+#endif
+
     report_init();
     LOG_INF("Candy dispenser ready");
 
@@ -233,10 +260,21 @@ int main(void)
             continue;
         }
 
+        /* Beacons repeat, so play each requested sequence once. */
+        if (req.type == MSG_PLAY_TRACK) {
+            if (req.seq != last_play_seq[req.source]) {
+                last_play_seq[req.source] = req.seq;
+                LOG_INF("Station %u asks for track %u", req.source, req.track);
+                dfplayer_play(req.track);
+            }
+            continue;
+        }
+
         /* Station 5 repeats its request until it hears the confirmation, so
          * release only once per session and keep confirming it. */
         if (req.session != last_released_session) {
             LOG_INF("Release requested (session=%u)", req.session);
+            dfplayer_play(req.track);
             bool ok = release_candy();
 
             last_released_session = req.session;

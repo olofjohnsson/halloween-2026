@@ -1,9 +1,9 @@
 {
     "nrf-connect.applications": [
-        "${workspaceFolder}/stations",
         "${workspaceFolder}/candy-dispenser",
         "${workspaceFolder}/tests/release-tester",
         "${workspaceFolder}/tests/keypad-tester",
-        "${workspaceFolder}/tests/blink-tester"
+        "${workspaceFolder}/tests/blink-tester",
+        "${workspaceFolder}/tests/dfplayer-tester"
     ]
 }

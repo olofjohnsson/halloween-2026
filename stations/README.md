@@ -116,6 +116,11 @@ Message payload:
 | 4 | `MSG_RELEASE_CANDY` | station 5 | correct code entered; dispenser (target 0) should release candy |
 | 5 | `MSG_NEW_ROUND` | station 5 | start a new round with a fresh session |
 | 7 | `MSG_CANDY_DONE` | dispenser | candy released for this session |
+| 8 | `MSG_PLAY_TRACK` | stations 1-5 | start a DFPlayer track on the target station (1-5) or the dispenser (0) |
+
+The 24-bit value carries the DFPlayer track in bits 0-15 (0 = none). `MSG_PLAY_TRACK` also uses bits 16-23 as a
+sequence number so a repeated beacon plays the track only once. `MSG_ACTIVATE` (value = track the next station plays)
+and `MSG_RELEASE_CANDY` (value = track the dispenser plays) use the track field too.
 
 ### Game flow
 - Station 1 starts active with a random session. After a correct answer, stations 1-4 repeatedly advertise `MSG_ACTIVATE` for the next station.
@@ -128,6 +133,29 @@ Message payload:
 Station 5 pins (example, verify): keypad rows P0.08, P1.00, P0.24, P0.20, columns P0.17, P0.06, P0.22; buttons P0.02-P0.04; LED P0.05; LCD I2C SDA P0.31 / SCL P0.29. Keypad connector order assumed R1-R4, C1-C3.
 
 The simple 16-bit session ID is for avoiding accidental cross-game activation, not security. This protocol is suitable for a supervised Halloween game, not access control.
+
+## Sound (DFPlayer Mini)
+
+Every station and the candy dispenser can have a DFPlayer Mini (optional, `CONFIG_HALLOWEEN_DFPLAYER=y` in
+`station_N.conf`). Wiring on the Pro Micro: P1.01 (TX) -> 1 kΩ -> DFPlayer RX, P1.02 (RX) <- DFPlayer TX,
+5 V and GND from the supply (the module needs 5 V for good sound; 3.3 V logic is fine). The pins are set in
+`boards/promicro_nrf52840_nrf52840.overlay` (UART1, 9600 baud). The nRF52840 DK overlay has no DFPlayer
+because its UART1 pins are used by the station 5 keypad. Files on the SD card are `0001.mp3`, `0002.mp3`, ...
+(root or `/MP3`) and the track number is the file number.
+
+Options in `station_N.conf`:
+
+| Option | Meaning |
+|--------|---------|
+| `CONFIG_HALLOWEEN_DFPLAYER_VOLUME` | volume 0-30 (default 20) |
+| `CONFIG_HALLOWEEN_ACTIVE_TRACK` | played on this station when it becomes active |
+| `CONFIG_HALLOWEEN_CORRECT_TRACK` | played on this station on a correct answer |
+| `CONFIG_HALLOWEEN_NEXT_STATION_TRACK` | sent with the activation: the next station plays it when activated |
+| `CONFIG_HALLOWEEN_REMOTE_TRACK` + `CONFIG_HALLOWEEN_REMOTE_TARGET` | when this station becomes active, start that track on another station (1-5) or the dispenser (0) via `MSG_PLAY_TRACK` |
+| `CONFIG_HALLOWEEN_DISPENSER_TRACK` | station 5: track the dispenser plays on a candy release |
+
+Example: `CONFIG_HALLOWEEN_NEXT_STATION_TRACK=3` in `station_2.conf` makes station 3 play track 3 when station 2
+hands over. Stations without a DFPlayer ignore track requests.
 
 ## Questions and answers
 

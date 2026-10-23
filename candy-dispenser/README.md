@@ -69,6 +69,14 @@ SWD and replaces the UF2 bootloader with MCUboot (see the stations README).
 The Wi-Fi firmware is too large for an MCUboot slot on the nRF5340, so the dispenser is
 flashed over USB/J-Link (`west flash`) and has no BLE FOTA. The stations still use FOTA.
 
+## Sound (DFPlayer Mini)
+
+Set `CONFIG_HALLOWEEN_DFPLAYER=y` (e.g. in `wifi_secrets.conf` or `-DEXTRA_CONF_FILE`) to play tracks requested by
+the stations: the track in the candy release request from station 5 (`CONFIG_HALLOWEEN_DISPENSER_TRACK` there)
+and `MSG_PLAY_TRACK` from any station. It uses the Arduino serial port UART1 at 9600 baud: P1.01 (D1, TX) -> 1 kΩ
+-> DFPlayer RX, P1.00 (D0, RX) <- DFPlayer TX. The Arduino header is 1.8 V logic, so use a level shifter for the
+DFPlayer's 3.3 V TX and RX. Volume: `CONFIG_HALLOWEEN_DFPLAYER_VOLUME`. Not available on the Pro Micro variant yet.
+
 ## BLE protocol
 Same as the stations (16-bit service data UUID `0xFFF0`, magic `HW`, version 1).
 The dispenser accepts `MSG_RELEASE_CANDY` (type 4, target 0, source 5) and advertises

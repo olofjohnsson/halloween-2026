@@ -15,6 +15,7 @@
 #include <zephyr/logging/log.h>
 
 #include "fota.h"
+#include "dfplayer.h"
 
 LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
 
@@ -59,7 +60,10 @@ LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
 #define MSG_NEW_ROUND 5
 /* Dispenser -> station 5 (source 0): candy was released for this session. */
 #define MSG_CANDY_DONE 7
+/* Any -> station/dispenser: start a track there. */
+#define MSG_PLAY_TRACK 8
 #define DISPENSER_ID 0
+#define PLAY_BEACON_MS 3000
 #define NEW_ROUND_BEACON_MS 60000
 #define STATUS_SHOW_MS 2000
 #define CODE_LEN 6
@@ -68,7 +72,9 @@ LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
  * [0] magic H, [1] magic W, [2] version, [3] type,
  * [4] target station, [5] source station,
  * [6..7] session ID (little endian),
- * [8..10] value (24-bit little endian; currently unused).
+ * [8..10] value (24-bit little endian): bits 0..15 = DFPlayer track (0 = none),
+ *         bits 16..23 = sequence number (MSG_PLAY_TRACK only, so a repeated
+ *         beacon plays the track once).
  */
 /* 0 = keep showing the code until the next round starts. */
 #define CODE_DISPLAY_MS (CONFIG_HALLOWEEN_CODE_DISPLAY_SECONDS * 1000)
@@ -152,6 +158,20 @@ static const struct device *lcd_i2c = DEVICE_DT_GET(DT_NODELABEL(i2c0));
 #endif
 
 static bool lcd_ready;
+
+#if CONFIG_HALLOWEEN_DFPLAYER
+#if !DT_NODE_EXISTS(DT_NODELABEL(dfplayer_uart))
+#error "CONFIG_HALLOWEEN_DFPLAYER needs a dfplayer_uart node in the board overlay"
+#endif
+static const struct device *const dfplayer_dev = DEVICE_DT_GET(DT_NODELABEL(dfplayer_uart));
+#endif
+
+#define VALUE_TRACK(value) ((uint16_t)((value) & 0xffff))
+#define VALUE_SEQ(value) ((uint8_t)(((value) >> 16) & 0xff))
+
+static uint8_t play_seq;
+static uint8_t last_play_seq[LAST_STATION_ID + 1];
+static int64_t play_beacon_until_ms;
 
 static enum station_state state = ST_WAITING;
 static uint16_t session_id;
@@ -349,6 +369,9 @@ static void flash_led(unsigned int count, int on_ms, int off_ms)
 
 static void update_beacon(uint8_t type, uint8_t target, uint32_t value)
 {
+    if (type != MSG_PLAY_TRACK) {
+        play_beacon_until_ms = 0;
+    }
     service_data[2] = MAGIC_0;
     service_data[3] = MAGIC_1;
     service_data[4] = PROTOCOL_VERSION;
@@ -368,6 +391,28 @@ static void update_beacon(uint8_t type, uint8_t target, uint32_t value)
         LOG_INF("Beacon updated: type=%u target=%u session=%u",
                 type, target, session_id);
     }
+}
+
+/* Asks another station (1..5) or the dispenser (0) to play a track. The beacon
+ * is repeated for a few seconds and then falls back to idle (see main loop). */
+static void send_play_track(uint8_t target, uint16_t track)
+{
+    if (track == 0) {
+        return;
+    }
+    play_seq = (uint8_t)(play_seq + 1U);
+    if (play_seq == 0) {
+        play_seq = 1;
+    }
+    update_beacon(MSG_PLAY_TRACK, target, (uint32_t)track | ((uint32_t)play_seq << 16));
+    play_beacon_until_ms = k_uptime_get() + PLAY_BEACON_MS;
+}
+
+/* Called whenever this station becomes the active one. */
+static void on_station_active(void)
+{
+    dfplayer_play(CONFIG_HALLOWEEN_ACTIVE_TRACK);
+    send_play_track(CONFIG_HALLOWEEN_REMOTE_TARGET, CONFIG_HALLOWEEN_REMOTE_TRACK);
 }
 
 struct parse_context {
@@ -457,6 +502,9 @@ static void begin_round(uint16_t session)
     if (STATION_ID == LAST_STATION_ID) {
         lcd_show_waiting();
     }
+    if (state == ST_ACTIVE) {
+        on_station_active();
+    }
 }
 
 static void finish_correct_answer(void);
@@ -494,7 +542,7 @@ static void test_release(void)
     final_code_valid = false;
     clear_entry();
     state = ST_RELEASING;
-    update_beacon(MSG_RELEASE_CANDY, DISPENSER_ID, 0);
+    update_beacon(MSG_RELEASE_CANDY, DISPENSER_ID, CONFIG_HALLOWEEN_DISPENSER_TRACK);
     lcd_show_final();
     LOG_INF("TEST: asking dispenser to release candy (session=%u)", session_id);
     flash_led(1, 200, 0);
@@ -526,6 +574,18 @@ static void process_beacon(const struct button_msg *msg)
         return;
     }
 
+    /* Another station asks us to play a track; beacons repeat, so play each sequence once. */
+    if (msg->type == MSG_PLAY_TRACK &&
+        msg->target == STATION_ID &&
+        msg->source <= LAST_STATION_ID &&
+        msg->source != STATION_ID &&
+        VALUE_SEQ(msg->value) != last_play_seq[msg->source]) {
+        last_play_seq[msg->source] = VALUE_SEQ(msg->value);
+        LOG_INF("Station %d asks for track %u", msg->source, VALUE_TRACK(msg->value));
+        dfplayer_play(VALUE_TRACK(msg->value));
+        return;
+    }
+
     /* The next station answering with our session proves it got the activation,
      * so stop advertising it (a stale activation could re-trigger a reboot). */
     if (state == ST_COMPLETED && STATION_ID < LAST_STATION_ID &&
@@ -553,6 +613,8 @@ static void process_beacon(const struct button_msg *msg)
         LOG_INF("Station %d ACTIVE (source=%d session=%u)",
                 STATION_ID, msg->source, session_id);
         update_beacon(MSG_IDLE, 0, 0);
+        dfplayer_play(VALUE_TRACK(msg->value));
+        on_station_active();
     }
 }
 
@@ -570,7 +632,7 @@ static void finish_correct_answer(void)
     if (STATION_ID < LAST_STATION_ID) {
         /* Keep this message in the advertising payload so it is repeated until
          * the next station receives it. The next station only accepts it once. */
-        update_beacon(MSG_ACTIVATE, STATION_ID + 1, 0);
+        update_beacon(MSG_ACTIVATE, STATION_ID + 1, CONFIG_HALLOWEEN_NEXT_STATION_TRACK);
         LOG_INF("Station %d completed; advertising activation for station %d",
                 STATION_ID, STATION_ID + 1);
     } else {
@@ -594,6 +656,7 @@ static void start_winning_pattern(void)
     state = ST_CELEBRATING;
     win_phase = 0;
     set_led(true);
+    dfplayer_play(CONFIG_HALLOWEEN_CORRECT_TRACK);
     win_phase_deadline_ms = k_uptime_get() + WIN_FLASH_MS;
     LOG_INF("Correct answer at station %d; playing winning LED pattern", STATION_ID);
 }
@@ -703,7 +766,7 @@ static void handle_key(char key)
                 final_code = 0;
                 clear_entry();
                 state = ST_RELEASING;
-                update_beacon(MSG_RELEASE_CANDY, DISPENSER_ID, 0);
+                update_beacon(MSG_RELEASE_CANDY, DISPENSER_ID, CONFIG_HALLOWEEN_DISPENSER_TRACK);
                 LOG_INF("Correct code; asking dispenser to release candy");
             } else {
                 status_text = "WRONG CODE!";
@@ -785,6 +848,10 @@ int main(void)
     }
     fota_confirm_image();
 
+#if CONFIG_HALLOWEEN_DFPLAYER
+    (void)dfplayer_init(dfplayer_dev, CONFIG_HALLOWEEN_DFPLAYER_VOLUME);
+#endif
+
     rc = bt_le_scan_start(BT_LE_SCAN_ACTIVE, device_found);
     if (rc < 0) {
         LOG_ERR("BLE scanning start failed: %d", rc);
@@ -799,6 +866,7 @@ int main(void)
         state = ST_ACTIVE;
         set_led(true);
         LOG_INF("Station 1 starts the game (session=%u)", session_id);
+        on_station_active();
     } else {
         state = ST_WAITING;
         set_led(false);
@@ -843,6 +911,10 @@ int main(void)
                     update_beacon(MSG_IDLE, 0, 0);
                 }
             }
+        }
+
+        if (play_beacon_until_ms != 0 && k_uptime_get() >= play_beacon_until_ms) {
+            update_beacon(MSG_IDLE, 0, 0);
         }
 
         struct button_msg msg;

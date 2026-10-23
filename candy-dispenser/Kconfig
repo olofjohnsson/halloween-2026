@@ -35,4 +35,23 @@ config HALLOWEEN_REPORT_TEST
 
 endmenu
 
+menu "Candy dispenser sound"
+
+config HALLOWEEN_DFPLAYER
+    bool "DFPlayer Mini sound module on UART1"
+    select SERIAL
+    select UART_INTERRUPT_DRIVEN
+    help
+      Plays tracks requested by the stations (MSG_PLAY_TRACK, or the track
+      in the candy release request). Needs a dfplayer_uart node in the
+      board overlay.
+
+config HALLOWEEN_DFPLAYER_VOLUME
+    int "DFPlayer volume (0..30)"
+    range 0 30
+    default 20
+    depends on HALLOWEEN_DFPLAYER
+
+endmenu
+
 source "Kconfig.zephyr"

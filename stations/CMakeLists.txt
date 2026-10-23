@@ -7,3 +7,7 @@ target_sources(app PRIVATE
     ../common/fota.c
 )
 target_include_directories(app PRIVATE ../common)
+
+if(CONFIG_HALLOWEEN_DFPLAYER)
+  target_sources(app PRIVATE ../common/dfplayer.c)
+endif()

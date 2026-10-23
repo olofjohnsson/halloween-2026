@@ -36,6 +36,53 @@ config HALLOWEEN_TEST_SKIP_PUZZLE
       Skips the puzzle chain; the code is generated at boot and, after every
       released candy, once an answer button is pressed. Use only via station_5_code_test.conf, never for the real game.
 
+config HALLOWEEN_DFPLAYER
+    bool "DFPlayer Mini sound module on UART1"
+    select SERIAL
+    select UART_INTERRUPT_DRIVEN
+    help
+      Enables the DFPlayer Mini (see the overlay for the UART pins). Needs a
+      board overlay that provides the dfplayer_uart node.
+
+config HALLOWEEN_DFPLAYER_VOLUME
+    int "DFPlayer volume (0..30)"
+    range 0 30
+    default 20
+    depends on HALLOWEEN_DFPLAYER
+
+config HALLOWEEN_ACTIVE_TRACK
+    int "Track to play on this station when it becomes active (0 = none)"
+    range 0 255
+    default 0
+
+config HALLOWEEN_CORRECT_TRACK
+    int "Track to play on this station on a correct answer (0 = none)"
+    range 0 255
+    default 0
+
+config HALLOWEEN_NEXT_STATION_TRACK
+    int "Track the next station plays when this station activates it (0 = none)"
+    range 0 255
+    default 0
+    help
+      Sent in the activation message (stations 1-4). The next station needs
+      a DFPlayer to play it; stations without one ignore it.
+
+config HALLOWEEN_REMOTE_TRACK
+    int "Track to start on another station or the dispenser when this one becomes active (0 = none)"
+    range 0 255
+    default 0
+
+config HALLOWEEN_REMOTE_TARGET
+    int "Target of HALLOWEEN_REMOTE_TRACK (1..5 = station, 0 = candy dispenser)"
+    range 0 5
+    default 0
+
+config HALLOWEEN_DISPENSER_TRACK
+    int "Station 5: track the dispenser plays when asked to release candy (0 = none)"
+    range 0 255
+    default 0
+
 endmenu
 
 source "Kconfig.zephyr"
