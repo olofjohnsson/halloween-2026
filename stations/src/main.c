@@ -177,6 +177,7 @@ static const struct device *lcd_i2c = DEVICE_DT_GET(DT_NODELABEL(i2c0));
 #endif
 
 static bool lcd_ready;
+static uint8_t lcd_backlight = LCD_BACKLIGHT;
 
 #if CONFIG_HALLOWEEN_DFPLAYER
 #if !DT_NODE_EXISTS(DT_NODELABEL(dfplayer_uart))
@@ -249,7 +250,7 @@ static int lcd_pulse_enable(uint8_t value)
 
 static int lcd_write_nibble(uint8_t nibble, bool rs)
 {
-    uint8_t value = (uint8_t)((nibble & 0x0f) << 4) | LCD_BACKLIGHT;
+    uint8_t value = (uint8_t)((nibble & 0x0f) << 4) | lcd_backlight;
     if (rs) value |= LCD_RS;
     /* RW stays low (write). */
     return lcd_pulse_enable(value);
@@ -324,9 +325,18 @@ static int lcd_print_at(uint8_t column, uint8_t row, const char *text)
 static void lcd_show_waiting(void)
 {
     if (!lcd_ready) return;
+    /* Waiting: clear, display off and backlight off (the expander write latches the backlight). */
     (void)lcd_command(0x01);
-    (void)lcd_print_at(0, 0, "HALLOWEEN PUZZLE");
-    (void)lcd_print_at(0, 1, "Station 5 waiting");
+    (void)lcd_command(0x08);
+    lcd_backlight = 0;
+    (void)lcd_expander_write(0);
+}
+
+static void lcd_wake(void)
+{
+    if (lcd_backlight) return;
+    lcd_backlight = LCD_BACKLIGHT;
+    (void)lcd_command(0x0c);
 }
 
 static void lcd_show_final(void)
@@ -360,6 +370,7 @@ static void lcd_show_final(void)
 
     if (!lcd_ready) return;
 
+    lcd_wake();
     (void)lcd_command(0x01);
     (void)lcd_print_at(0, 0, line1);
     (void)lcd_print_at(0, 1, line2);

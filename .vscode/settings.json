@@ -5,6 +5,7 @@
         "${workspaceFolder}/tests/keypad-tester",
         "${workspaceFolder}/tests/blink-tester",
         "${workspaceFolder}/tests/dfplayer-tester",
-        "${workspaceFolder}/stations"
+        "${workspaceFolder}/stations",
+        "${workspaceFolder}/tests/lcd-tester"
     ]
 }

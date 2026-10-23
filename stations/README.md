@@ -147,8 +147,9 @@ also passes the activation on (`*` clears). Power both at the same time so they 
 Every station and the candy dispenser can have a DFPlayer Mini (optional, `CONFIG_HALLOWEEN_DFPLAYER=y` in
 `station_N.conf`). Wiring on the Pro Micro: P1.01 (TX) -> 1 kΩ -> DFPlayer RX, P1.02 (RX) <- DFPlayer TX,
 5 V and GND from the supply (the module needs 5 V for good sound; 3.3 V logic is fine). The pins are set in
-`boards/promicro_nrf52840_nrf52840.overlay` (UART1, 9600 baud). The nRF52840 DK overlay has no DFPlayer
-because its UART1 pins are used by the station 5 keypad. Files on the SD card are `0001.mp3`, `0002.mp3`, ...
+`boards/promicro_nrf52840_nrf52840.overlay` (UART1, 9600 baud). On the nRF52840 DK (station 5) the DFPlayer
+uses P1.08 (TX -> 1 kΩ -> DFPlayer RX) and P1.09 (RX <- DFPlayer TX) because P1.01..P1.07 are the keypad;
+the DK's own 5 V pin powers the module. Files on the SD card are `0001.mp3`, `0002.mp3`, ...
 (root or `/MP3`) and the track number is the file number.
 
 Options in `station_N.conf`:

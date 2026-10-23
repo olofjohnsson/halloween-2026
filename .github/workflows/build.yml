@@ -26,7 +26,7 @@ jobs:
           - { name: station-2, app: stations, board: promicro_nrf52840/nrf52840, extra: "-DEXTRA_CONF_FILE=station_2.conf" }
           - { name: station-3, app: stations, board: promicro_nrf52840/nrf52840, extra: "-DEXTRA_CONF_FILE=station_3.conf" }
           - { name: station-4, app: stations, board: promicro_nrf52840/nrf52840, extra: "-DEXTRA_CONF_FILE=station_4.conf" }
-          - { name: station-5, app: stations, board: promicro_nrf52840/nrf52840, extra: "-DEXTRA_CONF_FILE=station_5.conf" }
+          - { name: station-5, app: stations, board: nrf52840dk/nrf52840, extra: "-DEXTRA_CONF_FILE=station_5.conf" }
           - { name: candy-dispenser, app: candy-dispenser, board: nrf7002dk/nrf5340/cpuapp, extra: "-DDTC_OVERLAY_FILE=boards/nrf7002dk_nrf5340_cpuapp.overlay" }
 
     steps:
