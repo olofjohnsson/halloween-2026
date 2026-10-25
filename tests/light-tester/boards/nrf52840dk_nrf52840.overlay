@@ -1,0 +1,7 @@
+/*
+ * PWM output on P0.13 (the DK's LED1 pin) to drive the MOSFET gate. Normal polarity, so a higher
+ * duty cycle means a brighter spot light (LED1 itself shows the inverse). 5 kHz PWM.
+ */
+&pwm_led0 {
+    pwms = <&pwm0 0 PWM_USEC(200) PWM_POLARITY_NORMAL>;
+};
