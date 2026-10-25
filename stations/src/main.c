@@ -81,6 +81,8 @@ LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
 /* Any -> station/dispenser: start a track there. */
 #define MSG_PLAY_TRACK 8
 #define DISPENSER_ID 0
+/* Music player N (ESP32-C3) is addressed as target MUSIC_PLAYER_TARGET_BASE + N. */
+#define MUSIC_PLAYER_TARGET_BASE 10
 #define PLAY_BEACON_MS 3000
 /* Set in the track field of MSG_IDLE by a station that was just activated: "I got your activation". */
 #define IDLE_ACTIVE_FLAG 0x8000
@@ -235,7 +237,14 @@ static struct bt_data ad[] = {
 
 static int lcd_expander_write(uint8_t value)
 {
-    return i2c_write(lcd_i2c, &value, sizeof(value), LCD_I2C_ADDR);
+    int rc = 0;
+
+    /* A failed write would drop a nibble and desync the LCD, so retry a few times. */
+    for (int attempt = 0; attempt < 3; attempt++) {
+        rc = i2c_write(lcd_i2c, &value, sizeof(value), LCD_I2C_ADDR);
+        if (rc == 0) break;
+    }
+    return rc;
 }
 
 static int lcd_pulse_enable(uint8_t value)
@@ -427,7 +436,7 @@ static void update_beacon(uint8_t type, uint8_t target, uint32_t value)
     }
 }
 
-/* Asks another station (1..5) or the dispenser (0) to play a track. The beacon
+/* Asks another station (1..5), the dispenser (0) or a music player (10 + N) to play a track. The beacon
  * is repeated for a few seconds and then falls back to idle (see main loop). */
 static void send_play_track(uint8_t target, uint16_t track)
 {
@@ -446,7 +455,10 @@ static void send_play_track(uint8_t target, uint16_t track)
 static void on_station_active(void)
 {
     dfplayer_play(CONFIG_HALLOWEEN_ACTIVE_TRACK);
-    send_play_track(CONFIG_HALLOWEEN_REMOTE_TARGET, CONFIG_HALLOWEEN_REMOTE_TRACK);
+    send_play_track(CONFIG_HALLOWEEN_REMOTE_PLAYER > 0
+                        ? MUSIC_PLAYER_TARGET_BASE + CONFIG_HALLOWEEN_REMOTE_PLAYER
+                        : CONFIG_HALLOWEEN_REMOTE_TARGET,
+                    CONFIG_HALLOWEEN_REMOTE_TRACK);
 }
 
 struct parse_context {
@@ -873,6 +885,139 @@ static void handle_pingpong_key(char key)
 #endif
 #endif
 
+#if CONFIG_HALLOWEEN_TEST_IO
+/* Resyncs the LCD's 4-bit interface without clearing or blanking the display (no flicker). */
+static void lcd_resync(void)
+{
+    (void)lcd_write_nibble(0x03, false);
+    k_msleep(5);
+    (void)lcd_write_nibble(0x03, false);
+    k_busy_wait(150);
+    (void)lcd_write_nibble(0x03, false);
+    (void)lcd_write_nibble(0x02, false);
+    (void)lcd_command(0x28);
+    (void)lcd_command(0x0c);
+}
+
+#if STATION_ID != LAST_STATION_ID
+#error "CONFIG_HALLOWEEN_TEST_IO only works for station 5"
+#endif
+#define IO_CODE CONFIG_HALLOWEEN_TEST_IO_CODE
+
+/* Test: shows the last button and key on the LCD; typing IO_CODE starts the DFPlayer. */
+static void io_test_loop(void)
+{
+    char entry_buf[sizeof(IO_CODE)] = "";
+    size_t len = 0;
+    char last_key = '-';
+    unsigned int last_button = 0;
+    const char *result = "";
+    bool pressed[ARRAY_SIZE(buttons)] = {false};
+
+    LOG_INF("TEST IO: press buttons and keys; type %s to play track %d",
+            IO_CODE, CONFIG_HALLOWEEN_TEST_IO_TRACK);
+    lcd_wake();
+
+    bool changed = true; /* draw once at start */
+    int64_t last_draw_ms = 0;
+
+    while (1) {
+        while (!changed) {
+            /* Redraw every second so any garbage heals itself. */
+            if (k_uptime_get() - last_draw_ms >= 1000) {
+                changed = true;
+                break;
+            }
+
+            for (size_t i = 0; i < ARRAY_SIZE(buttons); i++) {
+                bool now = button_is_pressed(&buttons[i]);
+
+                /* Debounce: a press only counts if it is still there 30 ms later. */
+                if (now && !pressed[i]) {
+                    k_msleep(30);
+                    now = button_is_pressed(&buttons[i]);
+                }
+
+                if (now && !pressed[i]) {
+                    last_button = (unsigned int)i + 1;
+                    result = "";
+                    changed = true;
+                    LOG_INF("Button %u pressed", last_button);
+                    /* Do not touch the LCD while the button is held or bouncing (noise on I2C). */
+                    while (button_is_pressed(&buttons[i])) {
+                        k_msleep(10);
+                    }
+                    k_msleep(50);
+                    now = false;
+                }
+                pressed[i] = now;
+            }
+
+            char key = IS_ENABLED(CONFIG_HALLOWEEN_TEST_IO_NO_KEYPAD) ? '\0' : keypad_poll();
+
+            if (key) {
+                last_key = key;
+                result = "";
+                changed = true;
+                LOG_INF("Key '%c' pressed", key);
+
+                if (key == '*') {
+                    len = 0;
+                } else if (key >= '0' && key <= '9') {
+                    if (len >= strlen(IO_CODE)) len = 0;
+                    entry_buf[len++] = key;
+                    entry_buf[len] = '\0';
+
+                    if (len == strlen(IO_CODE)) {
+                        if (memcmp(entry_buf, IO_CODE, len) == 0) {
+                            result = "CORRECT! PLAYING";
+                            LOG_INF("Correct keys, playing track %d", CONFIG_HALLOWEEN_TEST_IO_TRACK);
+#if CONFIG_HALLOWEEN_DFPLAYER
+                            dfplayer_play(CONFIG_HALLOWEEN_TEST_IO_TRACK);
+#else
+                            LOG_WRN("DFPlayer not enabled in this build");
+#endif
+                        } else {
+                            result = "WRONG CODE";
+                        }
+                        len = 0;
+                    }
+                }
+                entry_buf[len] = '\0';
+            }
+            k_msleep(KEYPAD_POLL_MS);
+        }
+
+        char line1[17];
+        char line2[17];
+        char text[24];
+
+        if (last_button) {
+            snprintk(text, sizeof(text), "BTN:%u  KEY:%c", last_button, last_key);
+        } else {
+            snprintk(text, sizeof(text), "BTN:-  KEY:%c", last_key);
+        }
+        /* Pad to the full width instead of clearing, so the LCD does not flicker. */
+        snprintk(line1, sizeof(line1), "%-16.16s", text);
+        if (result[0] != '\0') {
+            snprintk(text, sizeof(text), "%s", result);
+        } else {
+            snprintk(text, sizeof(text), "> %s", entry_buf);
+        }
+        snprintk(line2, sizeof(line2), "%-16.16s", text);
+        if (lcd_ready) {
+            /* A glitch on the I2C lines can desync the LCD's 4-bit interface and show garbage;
+             * resyncing before every redraw heals it. The text is overwritten, never cleared. */
+            lcd_resync();
+            (void)lcd_print_at(0, 0, line1);
+            (void)lcd_print_at(0, 1, line2);
+        }
+        changed = false;
+        last_draw_ms = k_uptime_get();
+    }
+}
+#endif /* CONFIG_HALLOWEEN_TEST_IO */
+
 int main(void)
 {
     int rc;
@@ -932,6 +1077,8 @@ int main(void)
 
 #if CONFIG_HALLOWEEN_TEST_PINGPONG
     static const char fota_name[] = "pingpong" STRINGIFY(STATION_ID);
+#elif CONFIG_HALLOWEEN_TEST_IO
+    static const char fota_name[] = "iotest" STRINGIFY(STATION_ID);
 #else
     static const char fota_name[] = "HW-Station" STRINGIFY(STATION_ID);
 #endif
@@ -945,6 +1092,10 @@ int main(void)
 
 #if CONFIG_HALLOWEEN_DFPLAYER
     (void)dfplayer_init(dfplayer_dev, CONFIG_HALLOWEEN_DFPLAYER_VOLUME);
+#endif
+
+#if CONFIG_HALLOWEEN_TEST_IO
+    io_test_loop();
 #endif
 
     rc = bt_le_scan_start(BT_LE_SCAN_ACTIVE, device_found);

@@ -78,6 +78,14 @@ config HALLOWEEN_REMOTE_TARGET
     range 0 5
     default 0
 
+config HALLOWEEN_REMOTE_PLAYER
+    int "Send HALLOWEEN_REMOTE_TRACK to music player N instead (0 = no, 1..9 = player N)"
+    range 0 9
+    default 0
+    help
+      Music players (ESP32-C3, see music-player/) have their own IDs. When this is not 0,
+      HALLOWEEN_REMOTE_TARGET is ignored and the track goes to the music player with this ID.
+
 config HALLOWEEN_DISPENSER_TRACK
     int "Station 5: track the dispenser plays when asked to release candy (0 = none)"
     range 0 255
@@ -101,6 +109,28 @@ config HALLOWEEN_TEST_PINGPONG_CODE
     string "TEST: fixed keypad code (digits only, avoid 4, 5, 6)"
     default "1237"
     depends on HALLOWEEN_TEST_PINGPONG_KEYPAD
+
+config HALLOWEEN_TEST_IO
+    bool "TEST: station 5 shows pressed buttons and keys on the LCD and plays a track on the correct code"
+    default n
+    help
+      Hardware test for station 5 only: no puzzle. Use only via station_5_io_test.conf.
+
+config HALLOWEEN_TEST_IO_CODE
+    string "TEST: keys that start the DFPlayer (digits only, avoid 4, 5, 6)"
+    default "1237"
+    depends on HALLOWEEN_TEST_IO
+
+config HALLOWEEN_TEST_IO_TRACK
+    int "TEST: DFPlayer track played when the correct keys are typed"
+    range 1 255
+    default 1
+    depends on HALLOWEEN_TEST_IO
+
+config HALLOWEEN_TEST_IO_NO_KEYPAD
+    bool "TEST: do not scan the keypad (to check whether it disturbs the LCD)"
+    default n
+    depends on HALLOWEEN_TEST_IO
 
 endmenu
 

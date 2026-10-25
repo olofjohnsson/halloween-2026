@@ -8,11 +8,11 @@ Prototype firmware for five Pro Micro nRF52840 stations. Each station has:
 
 ## Important hardware note
 
-`boards/promicro_nrf52840_nrf52840.overlay` uses example GPIO numbers:
-- buttons: P0.08 (btn 1), P0.17 (btn 2), P0.20 (btn 3)
-- LED MOSFET control: P0.05
+`boards/promicro_nrf52840_nrf52840.overlay` uses these GPIOs (as wired; all stations share the button pins):
+- buttons: P0.17 (btn 1), P0.20 (btn 2), P0.22 (btn 3)
+- LED MOSFET control: P0.09
 
-Verify that these pins are exposed and unused on your exact Pro Micro board. The LED GPIO is a logic output only; do not power an LED strip directly from an nRF52840 GPIO. Use a suitable MOSFET/driver and a separately powered LED supply with common ground as appropriate.
+Station 5 additionally uses the LCD, keypad and DFPlayer pins listed under "Station 5 wiring (Pro Micro)" below. Verify that all pins are exposed and unused on your exact Pro Micro board. The LED GPIO is a logic output only; do not power an LED strip directly from an nRF52840 GPIO. Use a suitable MOSFET/driver and a separately powered LED supply with common ground as appropriate.
 
 ## Build
 
@@ -116,7 +116,7 @@ Message payload:
 | 4 | `MSG_RELEASE_CANDY` | station 5 | correct code entered; dispenser (target 0) should release candy |
 | 5 | `MSG_NEW_ROUND` | station 5 | start a new round with a fresh session |
 | 7 | `MSG_CANDY_DONE` | dispenser | candy released for this session |
-| 8 | `MSG_PLAY_TRACK` | stations 1-5 | start a DFPlayer track on the target station (1-5) or the dispenser (0) |
+| 8 | `MSG_PLAY_TRACK` | stations 1-5 | start a DFPlayer track on the target station (1-5), the dispenser (0) or music player N (target `10 + N`, see [`music-player/`](../music-player/README.md)) |
 
 The 24-bit value carries the DFPlayer track in bits 0-15 (0 = none). `MSG_PLAY_TRACK` also uses bits 16-23 as a
 sequence number so a repeated beacon plays the track only once. `MSG_ACTIVATE` (value = track the next station plays)
@@ -130,7 +130,16 @@ and `MSG_RELEASE_CANDY` (value = track the dispenser plays) use the track field 
 - On a correct code station 5 advertises `MSG_RELEASE_CANDY`; the dispenser (balcony, no cables to station 5) releases one candy and answers with `MSG_CANDY_DONE`.
 - Station 5 then broadcasts `MSG_NEW_ROUND` with a new session for 60 s. All stations reset (station 1 active, others waiting).
 
-Station 5 pins (example, verify): keypad ribbon pins 1..7 on P0.31, P0.29, P0.02, P1.15, P1.13, P1.11, P0.06; buttons P0.08, P0.17, P0.20; LED P0.05; LCD I2C SDA P1.04 / SCL P1.06. Keypad connector order assumed R1-R4, C1-C3.
+### Station 5 wiring (Pro Micro)
+
+| Function | Pins |
+|----------|------|
+| Buttons 1 / 2 / 3 | P0.17 / P0.20 / P0.22 (to GND) |
+| LCD I2C | SDA P0.24, SCL P1.00 |
+| DFPlayer Mini | RX <- P1.01 (via 1 kΩ), TX -> P1.02 |
+| Keypad | see "Station 5 keypad" below |
+
+Summary (Pro Micro, as wired): keypad ribbon pins 1..7 on P0.31, P0.29, P0.02, P1.15, P1.13, P1.11, P0.06; buttons P0.17, P0.20, P0.22; LED P0.09; LCD I2C SDA P0.24 / SCL P1.00; DFPlayer RX <- P1.01 (via 1 kΩ), TX -> P1.02. Keypad connector order assumed R1-R4, C1-C3.
 
 The simple 16-bit session ID is for avoiding accidental cross-game activation, not security. This protocol is suitable for a supervised Halloween game, not access control.
 
@@ -161,6 +170,7 @@ Options in `station_N.conf`:
 | `CONFIG_HALLOWEEN_CORRECT_TRACK` | played on this station on a correct answer |
 | `CONFIG_HALLOWEEN_NEXT_STATION_TRACK` | sent with the activation: the next station plays it when activated |
 | `CONFIG_HALLOWEEN_REMOTE_TRACK` + `CONFIG_HALLOWEEN_REMOTE_TARGET` | when this station becomes active, start that track on another station (1-5) or the dispenser (0) via `MSG_PLAY_TRACK` |
+| `CONFIG_HALLOWEEN_REMOTE_PLAYER` | if 1-9, send `CONFIG_HALLOWEEN_REMOTE_TRACK` to music player N instead of `CONFIG_HALLOWEEN_REMOTE_TARGET` |
 | `CONFIG_HALLOWEEN_DISPENSER_TRACK` | station 5: track the dispenser plays on a candy release |
 
 Example: `CONFIG_HALLOWEEN_NEXT_STATION_TRACK=3` in `station_2.conf` makes station 3 play track 3 when station 2
@@ -223,6 +233,18 @@ On the nRF52840 DK, connect ribbon pin N to P1.0N (pin 1 to P1.01 ... pin 7 to P
 `-b nrf52840dk/nrf52840 -- -DEXTRA_CONF_FILE=station_5.conf`; the DK overlay already maps them.
 To test: build with `station_5.conf`, reach the code entry screen and check that each key shows on the LCD.
 
+## Station 5 I/O test (buttons, keypad, LCD, DFPlayer)
+
+`station_5_io_test.conf` checks the station 5 hardware without the puzzle or the dispenser:
+the LCD shows the last button and key pressed (`BTN:2  KEY:7`) and the digits typed so far (`> 12`).
+Typing the test code (`CONFIG_HALLOWEEN_TEST_IO_CODE`, default `1237`; no `#` needed, `*` clears) shows
+`CORRECT! PLAYING` and starts DFPlayer track `CONFIG_HALLOWEEN_TEST_IO_TRACK` (default 1); a wrong code shows `WRONG CODE`.
+The LCD is the only output (logging is off in this build). The BLE name is `iotest5` so this build is easy to tell apart. Build on the Pro Micro with:
+
+```sh
+west build -b promicro_nrf52840/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_5_io_test.conf
+```
+
 ## Station 5 LCD
 
 The prototype includes a small PCF8574/HD44780 4-bit LCD driver directly in
@@ -230,7 +252,7 @@ The prototype includes a small PCF8574/HD44780 4-bit LCD driver directly in
 - I2C controller `i2c0`;
 - 7-bit address `0x27`;
 - common backpack bit mapping: P0=RS, P1=RW, P2=E, P3=backlight, P4..P7=D4..D7;
-- example SDA P1.04 and SCL P1.06.
+- Pro Micro: SDA P0.24 and SCL P1.00 (DK: SDA P0.26 / SCL P0.27).
 
 These assumptions vary by seller and backpack. If the LCD is not detected,
 verify its address (often 0x27 or 0x3f), bit mapping, and pinctrl settings.

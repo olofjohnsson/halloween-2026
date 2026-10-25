@@ -6,6 +6,8 @@
         "${workspaceFolder}/tests/blink-tester",
         "${workspaceFolder}/tests/dfplayer-tester",
         "${workspaceFolder}/stations",
-        "${workspaceFolder}/tests/lcd-tester"
+        "${workspaceFolder}/tests/lcd-tester",
+        "${workspaceFolder}/tests/dk-blink-tester",
+        "${workspaceFolder}/tests/light-tester"
     ]
 }

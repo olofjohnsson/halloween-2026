@@ -19,12 +19,15 @@ It is meant for a supervised game, not for security.
 
 | Folder | Description |
 |--------|-------------|
-| [`stations/`](stations/README.md) | Firmware for the five puzzle stations (Pro Micro nRF52840 for stations 1-4, nRF52840 DK for station 5), including the BLE protocol and per-station config (`station_N.conf`). |
+| [`stations/`](stations/README.md) | Firmware for the five puzzle stations (Pro Micro nRF52840; station 5 can also run on an nRF52840 DK for testing), including the BLE protocol and per-station config (`station_N.conf`). |
 | [`candy-dispenser/`](candy-dispenser/README.md) | Firmware for the candy dispenser (nRF7002 DK, with a Pro Micro alternative). |
+| [`music-player/`](music-player/README.md) | Music/scary-noise player (ESP32-C3 Super Mini + DFPlayer Mini, PlatformIO). Stations start tracks on it over BLE; each player has its own ID. |
 | [`tests/release-tester/`](tests/release-tester/README.md) | nRF52840 DK app that fakes station 5 (Button 1 requests a candy release) for testing the dispenser. |
 | [`tests/keypad-tester/`](tests/keypad-tester/README.md) | nRF52840 DK app that logs every key press of the station 5 keypad. |
 | [`tests/lcd-tester/`](tests/lcd-tester/README.md) | nRF52840 DK app that scans I2C and exercises the station 5 LCD. |
 | [`tests/dfplayer-tester/`](tests/dfplayer-tester/README.md) | nRF52840 DK app for testing the DFPlayer Mini sound module. |
+| [`tests/dk-blink-tester/`](tests/dk-blink-tester/README.md) | nRF52840 DK app that toggles P0.13 (LED1) once per second, as a sanity check. |
+| [`tests/light-tester/`](tests/light-tester/README.md) | nRF52840 DK app that plays scary, celebration and wrong-answer light patterns on a PWM output (MOSFET + spot light). |
 | [`tests/blink-tester/`](tests/blink-tester/README.md) | Pro Micro app that blinks an LED to check the board and flashing. |
 
 ## Getting started
@@ -38,7 +41,7 @@ cd stations
 west build -b promicro_nrf52840/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_1.conf
 west flash
 
-# Station 5 runs on an nRF52840 DK
+# Station 5 on an nRF52840 DK instead (for testing)
 west build -b nrf52840dk/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_5.conf
 
 # The candy dispenser
