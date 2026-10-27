@@ -109,6 +109,12 @@ config HALLOWEEN_REMOTE_DELAYED_SECONDS
     range 0 600
     default 10
 
+config HALLOWEEN_LIGHTNING
+    bool "Lightning effect on the LED of an active station"
+    default y
+    help
+      A stuttering lightning intro when the station activates, then random short bursts.
+
 config HALLOWEEN_DISPENSER_TRACK
     int "Station 5: track the dispenser plays when asked to release candy (0 = none)"
     range 0 255

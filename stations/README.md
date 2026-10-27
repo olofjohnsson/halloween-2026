@@ -10,7 +10,7 @@ Prototype firmware for five Pro Micro nRF52840 stations. Each station has:
 
 `boards/promicro_nrf52840_nrf52840.overlay` uses these GPIOs (as wired; all stations share the button pins):
 - buttons: P0.17 (btn 1), P0.20 (btn 2), P0.22 (btn 3)
-- LED MOSFET control: P0.09
+- LED MOSFET control: P0.09 (PWM output, dimmable; an NFC pin, so `CONFIG_NFCT_PINS_AS_GPIOS=y` is set in the board conf and a full flash/erase writes the UICR)
 
 Station 5 additionally uses the LCD, keypad and DFPlayer pins listed under "Station 5 wiring (Pro Micro)" below. Verify that all pins are exposed and unused on your exact Pro Micro board. The LED GPIO is a logic output only; do not power an LED strip directly from an nRF52840 GPIO. Use a suitable MOSFET/driver and a separately powered LED supply with common ground as appropriate.
 
@@ -170,6 +170,14 @@ Every station and the candy dispenser can have a DFPlayer Mini (optional, `CONFI
 uses P1.08 (TX -> 1 kΩ -> DFPlayer RX) and P1.09 (RX <- DFPlayer TX) because P1.01..P1.07 are the keypad;
 the DK's own 5 V pin powers the module. Files on the SD card are `0001.mp3`, `0002.mp3`, ...
 in a folder named `MP3` (`/MP3/0001.mp3`); the track number is the file name number, independent of copy order.
+
+## LED lightning
+
+The LED is a PWM output (5 kHz), so the effect uses real dimming. While a station is active its LED flickers like
+lightning: a stuttering burst of bright flashes and dips when it activates, with shallower and shallower dips until it
+fades to steady on, then a short random burst every 3-12 s (sometimes with a brief blackout). A wrong answer cancels
+any running burst. The LED must be driven through a MOSFET that works with PWM (an LED strip or lamp, not a relay). Turn it off with
+`CONFIG_HALLOWEEN_LIGHTNING=n` in `station_N.conf`. The timing constants (`LIGHTNING_*`) are in `src/main.c`.
 
 Options in `station_N.conf`:
 

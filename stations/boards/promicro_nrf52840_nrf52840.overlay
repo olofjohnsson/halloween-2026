@@ -45,11 +45,19 @@
         kcol3: kcol_3 { compatible = "halloween,gpio"; gpios = <&gpio1 13 GPIO_ACTIVE_HIGH>; };
     };
 
+    /* Dimmable MOSFET gate on P0.09 (an NFC pin: needs CONFIG_NFCT_PINS_AS_GPIOS), 5 kHz PWM. */
     halloween_led: halloween_led {
-        compatible = "halloween,gpio";
-        gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>;
-        label = "LED strip MOSFET enable";
+        compatible = "halloween,pwm-led";
+        pwms = <&pwm0 0 PWM_USEC(200) PWM_POLARITY_NORMAL>;
+        label = "LED strip MOSFET gate";
     };
+};
+
+&pwm0 {
+    status = "okay";
+    pinctrl-0 = <&pwm0_halloween>;
+    pinctrl-1 = <&pwm0_halloween_sleep>;
+    pinctrl-names = "default", "sleep";
 };
 
 
@@ -58,6 +66,19 @@
  * Wiring: SDA = P0.24, SCL = P1.00 (the DFPlayer uses UART1 on P1.01/P1.02).
  */
 &pinctrl {
+    pwm0_halloween: pwm0_halloween {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 9)>;
+        };
+    };
+
+    pwm0_halloween_sleep: pwm0_halloween_sleep {
+        group1 {
+            psels = <NRF_PSEL(PWM_OUT0, 0, 9)>;
+            low-power-enable;
+        };
+    };
+
     lcd_i2c0_default: lcd_i2c0_default {
         group1 {
             psels = <NRF_PSEL(TWIM_SDA, 0, 24)>,
