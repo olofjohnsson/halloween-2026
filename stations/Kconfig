@@ -86,6 +86,29 @@ config HALLOWEEN_REMOTE_PLAYER
       Music players (ESP32-C3, see music-player/) have their own IDs. When this is not 0,
       HALLOWEEN_REMOTE_TARGET is ignored and the track goes to the music player with this ID.
 
+config HALLOWEEN_REMOTE_WRONG_TRACK
+    int "Track sent to the remote player/target when a wrong button is pressed (0 = none)"
+    range 0 255
+    default 0
+
+config HALLOWEEN_REMOTE_CORRECT_TRACK
+    int "Track sent to the remote player/target when the correct button is pressed (0 = none)"
+    range 0 255
+    default 0
+
+config HALLOWEEN_REMOTE_DELAYED_TRACK
+    int "Track sent to the remote player/target some seconds after the correct button (0 = none)"
+    range 0 255
+    default 0
+    help
+      Sent once the delay has passed and the next station has acknowledged the activation
+      (the BLE beacon is shared with the activation message). Cancelled when a new round starts.
+
+config HALLOWEEN_REMOTE_DELAYED_SECONDS
+    int "Delay in seconds for HALLOWEEN_REMOTE_DELAYED_TRACK"
+    range 0 600
+    default 10
+
 config HALLOWEEN_DISPENSER_TRACK
     int "Station 5: track the dispenser plays when asked to release candy (0 = none)"
     range 0 255

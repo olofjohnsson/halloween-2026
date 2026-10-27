@@ -169,7 +169,7 @@ Every station and the candy dispenser can have a DFPlayer Mini (optional, `CONFI
 `boards/promicro_nrf52840_nrf52840.overlay` (UART1, 9600 baud). On the nRF52840 DK (station 5) the DFPlayer
 uses P1.08 (TX -> 1 kΩ -> DFPlayer RX) and P1.09 (RX <- DFPlayer TX) because P1.01..P1.07 are the keypad;
 the DK's own 5 V pin powers the module. Files on the SD card are `0001.mp3`, `0002.mp3`, ...
-(root or `/MP3`) and the track number is the file number.
+in a folder named `MP3` (`/MP3/0001.mp3`); the track number is the file name number, independent of copy order.
 
 Options in `station_N.conf`:
 
@@ -181,6 +181,9 @@ Options in `station_N.conf`:
 | `CONFIG_HALLOWEEN_NEXT_STATION_TRACK` | sent with the activation: the next station plays it when activated |
 | `CONFIG_HALLOWEEN_REMOTE_TRACK` + `CONFIG_HALLOWEEN_REMOTE_TARGET` | when this station becomes active, start that track on another station (1-5) or the dispenser (0) via `MSG_PLAY_TRACK` |
 | `CONFIG_HALLOWEEN_REMOTE_PLAYER` | if 1-9, send `CONFIG_HALLOWEEN_REMOTE_TRACK` to music player N instead of `CONFIG_HALLOWEEN_REMOTE_TARGET` |
+| `CONFIG_HALLOWEEN_REMOTE_WRONG_TRACK` | sent to the same player/target when a wrong button is pressed |
+| `CONFIG_HALLOWEEN_REMOTE_CORRECT_TRACK` | sent to the same player/target when the correct button is pressed |
+| `CONFIG_HALLOWEEN_REMOTE_DELAYED_TRACK` + `CONFIG_HALLOWEEN_REMOTE_DELAYED_SECONDS` | sent that many seconds after the correct button (default 10 s); waits until the next station has acknowledged the activation, cancelled on a new round |
 | `CONFIG_HALLOWEEN_DISPENSER_TRACK` | station 5: track the dispenser plays on a candy release |
 
 Example: `CONFIG_HALLOWEEN_NEXT_STATION_TRACK=3` in `station_2.conf` makes station 3 play track 3 when station 2

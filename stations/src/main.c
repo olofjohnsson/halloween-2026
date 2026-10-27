@@ -202,6 +202,7 @@ static bool final_code_valid;
 static int64_t final_code_deadline_ms;
 static bool code_hidden;
 static bool activation_acked;
+static int64_t delayed_track_at_ms; /* 0 = nothing scheduled */
 static char entry[CODE_LEN + 1];
 static size_t entry_len;
 static const char *status_text;
@@ -475,14 +476,19 @@ static void send_play_track(uint8_t target, uint16_t track)
     play_beacon_until_ms = k_uptime_get() + PLAY_BEACON_MS;
 }
 
+static void send_remote_track(uint16_t track)
+{
+    send_play_track(CONFIG_HALLOWEEN_REMOTE_PLAYER > 0
+                        ? MUSIC_PLAYER_TARGET_BASE + CONFIG_HALLOWEEN_REMOTE_PLAYER
+                        : CONFIG_HALLOWEEN_REMOTE_TARGET,
+                    track);
+}
+
 /* Called whenever this station becomes the active one. */
 static void on_station_active(void)
 {
     dfplayer_play(CONFIG_HALLOWEEN_ACTIVE_TRACK);
-    send_play_track(CONFIG_HALLOWEEN_REMOTE_PLAYER > 0
-                        ? MUSIC_PLAYER_TARGET_BASE + CONFIG_HALLOWEEN_REMOTE_PLAYER
-                        : CONFIG_HALLOWEEN_REMOTE_TARGET,
-                    CONFIG_HALLOWEEN_REMOTE_TRACK);
+    send_remote_track(CONFIG_HALLOWEEN_REMOTE_TRACK);
 }
 
 struct parse_context {
@@ -555,6 +561,7 @@ static void begin_round(uint16_t session)
     final_code_deadline_ms = 0;
     code_hidden = false;
     activation_acked = false;
+    delayed_track_at_ms = 0;
     status_text = NULL;
     clear_entry();
 
@@ -820,6 +827,10 @@ static void start_winning_pattern(void)
     win_phase = 0;
     set_led(true);
     dfplayer_play(CONFIG_HALLOWEEN_CORRECT_TRACK);
+    send_remote_track(CONFIG_HALLOWEEN_REMOTE_CORRECT_TRACK);
+    if (CONFIG_HALLOWEEN_REMOTE_DELAYED_TRACK > 0) {
+        delayed_track_at_ms = k_uptime_get() + CONFIG_HALLOWEEN_REMOTE_DELAYED_SECONDS * 1000;
+    }
     win_phase_deadline_ms = k_uptime_get() + WIN_FLASH_MS;
     LOG_INF("Correct answer at station %d; playing winning LED pattern", STATION_ID);
 }
@@ -853,6 +864,7 @@ static void handle_answer(unsigned int button_number)
 
     if (button_number != CORRECT_BUTTON) {
         LOG_INF("Wrong answer at station %d", STATION_ID);
+        send_remote_track(CONFIG_HALLOWEEN_REMOTE_WRONG_TRACK);
         flash_led(3, 100, 100);
         return;
     }
@@ -1257,7 +1269,15 @@ int main(void)
         }
 
         if (play_beacon_until_ms != 0 && k_uptime_get() >= play_beacon_until_ms) {
-            update_beacon(MSG_IDLE, 0, 0);
+            update_beacon(MSG_IDLE, 0, state == ST_ACTIVE ? IDLE_ACTIVE_FLAG : 0);
+        }
+
+        /* The beacon slot is shared with the activation message, so the delayed track waits until the
+         * next station has acknowledged the activation. */
+        if (delayed_track_at_ms != 0 && k_uptime_get() >= delayed_track_at_ms &&
+            state != ST_CELEBRATING && (STATION_ID == LAST_STATION_ID || activation_acked)) {
+            delayed_track_at_ms = 0;
+            send_remote_track(CONFIG_HALLOWEEN_REMOTE_DELAYED_TRACK);
         }
 
         struct button_msg msg;

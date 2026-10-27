@@ -9,7 +9,7 @@
 
 LOG_MODULE_REGISTER(dfplayer, LOG_LEVEL_INF);
 
-#define CMD_PLAY_TRACK 0x03
+#define CMD_PLAY_TRACK 0x12 /* play /MP3/NNNN.mp3 by file name */
 #define CMD_VOLUME     0x06
 #define CMD_SOURCE     0x09
 #define CMD_RESET      0x0C

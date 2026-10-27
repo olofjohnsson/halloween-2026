@@ -25,5 +25,5 @@ west flash
 ```
 
 Adjust `TRACK_COUNT` in `src/main.c` to the number of files on the card
-(`0001.mp3`, `0002.mp3`, ... in the root or in `/MP3`). If you see no `RX` logs
+(`0001.mp3`, `0002.mp3`, ... in the `/MP3` folder). If you see no `RX` logs
 (init reply `0x3F`, finished `0x3D`) check the TX/RX wiring.

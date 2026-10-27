@@ -10,7 +10,7 @@ LOG_MODULE_REGISTER(dfplayer_tester, LOG_LEVEL_INF);
 #define DF_UART DEVICE_DT_GET(DT_NODELABEL(dfplayer_uart))
 
 #define CMD_NEXT        0x01
-#define CMD_PLAY_TRACK  0x03
+#define CMD_PLAY_TRACK  0x12 /* play /MP3/NNNN.mp3 by file name */
 #define CMD_VOLUME      0x06
 #define CMD_SOURCE      0x09
 #define CMD_QUERY_VOL   0x43
@@ -19,7 +19,7 @@ LOG_MODULE_REGISTER(dfplayer_tester, LOG_LEVEL_INF);
 #define SRC_SD          0x02
 
 #define VOLUME          15   /* 0..30 */
-#define TRACK_COUNT     3    /* files 0001.mp3 .. 000N.mp3 in /MP3 or the SD root */
+#define TRACK_COUNT     3    /* files 0001.mp3 .. 000N.mp3 in /MP3 */
 #define TRACK_TIME_MS   5000
 
 static const struct device *const uart = DF_UART;

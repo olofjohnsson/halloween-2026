@@ -111,10 +111,10 @@ void setup()
 #ifdef DF_SELF_TEST
     // Test mode: play track 1, then track 2 a few seconds later, to verify the DFPlayer.
     Serial.println("Self-test: playing track 1");
-    df_send(0x03, 1);
+    df_send(0x12, 1);
     delay(DF_SELF_TEST_MS);
     Serial.println("Self-test: playing track 2");
-    df_send(0x03, 2);
+    df_send(0x12, 2);
 #endif
 
     NimBLEDevice::init("");
@@ -136,7 +136,7 @@ void loop()
     if (track != 0) {
         pending_track = 0;
         Serial.printf("Play track %u\n", track);
-        df_send(0x03, track);
+        df_send(0x12, track);
         digitalWrite(LED_BUILTIN, LOW);
         delay(100);
         digitalWrite(LED_BUILTIN, HIGH);

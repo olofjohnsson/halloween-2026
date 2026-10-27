@@ -29,7 +29,7 @@ The track is sent when the station becomes active.
 | GND | GND |
 
 Speaker on the DFPlayer SPK pins (or the DAC outputs to an amplifier). Files on the SD card are `0001.mp3`,
-`0002.mp3`, ... in the root; the track number is the file number. Pins and volume are build flags in
+`0002.mp3`, ... in a folder named `MP3` (`/MP3/0001.mp3`); the track number is the file name number, independent of copy order. Pins and volume are build flags in
 `platformio.ini` (`DF_RX_PIN`, `DF_TX_PIN`, `DF_VOLUME`).
 
 ## DFPlayer self-test

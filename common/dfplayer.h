@@ -11,7 +11,7 @@
  */
 #if defined(CONFIG_HALLOWEEN_DFPLAYER)
 int dfplayer_init(const struct device *uart, uint8_t volume);
-/* Plays /MP3/0001.mp3 .. (or 0001.mp3 in the SD root) for track 1..; 0 is ignored. */
+/* Plays /MP3/0001.mp3 .. by file name for track 1..; 0 is ignored. */
 void dfplayer_play(uint16_t track);
 #else
 static inline int dfplayer_init(const struct device *uart, uint8_t volume)
