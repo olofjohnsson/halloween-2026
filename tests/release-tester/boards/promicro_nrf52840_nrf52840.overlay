@@ -1,0 +1,36 @@
+/*
+ * Three buttons, each between its GPIO and GND (internal pull-ups): P0.08, P0.17, P0.20.
+ * No LCD/keypad on this board. LED: P0.15 (the Pro Micro's LED, assumed active high).
+ */
+/ {
+    release_buttons {
+        compatible = "gpio-keys";
+        release_button1: release_button_1 {
+            gpios = <&gpio0 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            label = "Release button 1";
+        };
+        release_button2: release_button_2 {
+            gpios = <&gpio0 17 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            label = "Release button 2";
+        };
+        release_button3: release_button_3 {
+            gpios = <&gpio0 20 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            label = "Release button 3";
+        };
+    };
+
+    release_leds {
+        compatible = "gpio-leds";
+        release_led: release_led {
+            gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+            label = "Release LED";
+        };
+    };
+
+    aliases {
+        sw0 = &release_button1;
+        sw1 = &release_button2;
+        sw2 = &release_button3;
+        led0 = &release_led;
+    };
+};
