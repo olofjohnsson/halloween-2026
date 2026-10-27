@@ -64,4 +64,4 @@ server.pid
 .venv/
 data/
 
-stations/station_*
+candy-dispenser/build-candy/
