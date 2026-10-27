@@ -89,6 +89,8 @@ LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
 /* Set in the track field of MSG_IDLE by a station that was just activated: "I got your activation". */
 #define IDLE_ACTIVE_FLAG 0x8000
 #define NEW_ROUND_BEACON_MS 60000
+/* Station 1 announces a new round for this long after it (re)boots, then plays its start track. */
+#define RESTART_BEACON_MS 15000
 #define STATUS_SHOW_MS 2000
 #define CODE_LEN 6
 
@@ -785,11 +787,12 @@ static void process_beacon(const struct button_msg *msg)
 {
     maybe_relay(msg);
 
-    /* Station 5 starts a new round after the candy was released. */
+    /* Station 5 starts a new round after the candy was released, and a (re)booted station 1 restarts
+     * the whole game. */
     if (msg->type == MSG_NEW_ROUND &&
         msg->target == 0 &&
-        msg->source == LAST_STATION_ID &&
-        STATION_ID != LAST_STATION_ID &&
+        ((msg->source == LAST_STATION_ID && STATION_ID != LAST_STATION_ID) ||
+         (msg->source == 1 && STATION_ID != 1)) &&
         msg->session != 0 &&
         msg->session != session_id) {
         begin_round(msg->session);
@@ -1304,10 +1307,11 @@ int main(void)
         if (session_id == 0) {
             session_id = 1;
         }
-        state = ST_ACTIVE;
-        set_led(true);
         LOG_INF("Station 1 starts the game (session=%u)", session_id);
-        on_station_active();
+        begin_round(session_id);
+        /* Tell every station to reset to this session; the start track is sent when this ends. */
+        update_beacon(MSG_NEW_ROUND, 0, 0);
+        new_round_until_ms = k_uptime_get() + RESTART_BEACON_MS;
     } else {
         state = ST_WAITING;
         set_led(false);
@@ -1351,6 +1355,14 @@ int main(void)
                 if (state == ST_WAITING || state == ST_ACTIVE) {
                     update_beacon(MSG_IDLE, 0, 0);
                 }
+            }
+        }
+
+        if (STATION_ID == 1 && new_round_until_ms != 0 && k_uptime_get() >= new_round_until_ms) {
+            new_round_until_ms = 0;
+            if (state == ST_ACTIVE) {
+                update_beacon(MSG_IDLE, 0, IDLE_ACTIVE_FLAG);
+                send_remote_track(CONFIG_HALLOWEEN_REMOTE_TRACK);
             }
         }
 

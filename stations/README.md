@@ -103,6 +103,13 @@ Notes:
 - The SMP service is unauthenticated. MCUboot only accepts images signed with the project key, but the default key in the SDK is public. For anything beyond a family game, set your own key with `SB_CONFIG_BOOT_SIGNATURE_KEY_FILE` in `sysbuild.conf` and keep it out of git.
 - The station firmware is in `src/main.c`; the shared FOTA code is in `../common/`.
 
+## Restarting the game
+
+Restart the whole game by power-cycling (or resetting) **station 1**. It picks a new session ID and announces a
+new round for 15 s; stations 2-5 reset to waiting as soon as they hear it (also via the relay), and station 1
+becomes active again with the lightning effect and its start track. The other stations never need a restart. A
+station that missed the announcement ignores the old round's activations, so just restart station 1 again.
+
 ## Protocol
 
 The firmware uses legacy BLE advertising with 16-bit Service Data UUID `0xFFF0` (locally assigned for this project). Every station scans continuously.
@@ -118,7 +125,7 @@ Message payload:
 | 1 | `MSG_ACTIVATE` | stations 1-4 | activate the next station |
 | 3 | `MSG_IDLE` | all | nothing to say |
 | 4 | `MSG_RELEASE_CANDY` | station 5 | correct code entered; dispenser (target 0) should release candy |
-| 5 | `MSG_NEW_ROUND` | station 5 | start a new round with a fresh session |
+| 5 | `MSG_NEW_ROUND` | station 5, station 1 | start a new round with a fresh session (station 1 sends it for 15 s after it boots) |
 | 7 | `MSG_CANDY_DONE` | dispenser | candy released for this session |
 | 8 | `MSG_PLAY_TRACK` | stations 1-5 | start a DFPlayer track on the target station (1-5), the dispenser (0) or music player N (target `10 + N`, see [`music-player/`](../music-player/README.md)) |
 
