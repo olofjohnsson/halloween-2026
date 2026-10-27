@@ -15,6 +15,8 @@
 #include <zephyr/random/random.h>
 #include <zephyr/logging/log.h>
 
+#include <app_version.h>
+
 #include "fota.h"
 #include "dfplayer.h"
 
@@ -1281,8 +1283,8 @@ int main(void)
 
     boot_blink();
 
-    LOG_INF("Halloween station firmware: station %d, correct button %d",
-            STATION_ID, CORRECT_BUTTON);
+    LOG_INF("Halloween station firmware v%s: station %d, correct button %d",
+            APP_VERSION_STRING, STATION_ID, CORRECT_BUTTON);
 
     if (!pwm_is_ready_dt(&led)) {
         LOG_ERR("LED PWM device not ready");
@@ -1337,7 +1339,9 @@ int main(void)
 #elif CONFIG_HALLOWEEN_TEST_IO
     static const char fota_name[] = "iotest" STRINGIFY(STATION_ID);
 #else
-    static const char fota_name[] = "HW-Station" STRINGIFY(STATION_ID);
+    /* "HW<station>-v<version>", e.g. HW3-v1.0.0; at most 11 characters (see fota.h) */
+    static const char fota_name[] = "HW" STRINGIFY(STATION_ID) "-v" APP_VERSION_STRING;
+    BUILD_ASSERT(sizeof(fota_name) - 1 <= 11, "version too long for the advertised name");
 #endif
 
     rc = fota_adv_start(ad, ARRAY_SIZE(ad), fota_name);

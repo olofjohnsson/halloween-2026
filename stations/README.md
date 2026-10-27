@@ -90,7 +90,11 @@ Locate the Pro Micro's SWDIO/SWCLK pads from your exact board's schematic; they 
 Every station can be updated from a phone with the **nRF Connect Device Manager** app (MCUboot + MCUmgr SMP over BLE).
 
 1. Build the station as above. The signed update package is `build/dfu_application.zip`. Copy it to the phone.
-2. In nRF Connect Device Manager, find `HW-StationN` (N is the station ID), tap it, and open the **Image** tab.
+2. In nRF Connect Device Manager, find `HWN-vX.Y.Z` (N is the station ID, X.Y.Z the running firmware version, e.g. `HW3-v1.0.0`), tap it, and open the **Image** tab.
+   After an update the name shows the new version, which confirms the update took effect.
+   To release a new version, edit `stations/VERSION` (`VERSION_MAJOR`, `VERSION_MINOR`, `PATCHLEVEL`) before building;
+   it is the single source for the advertised name, the boot log and the MCUboot image version (bump it
+   for every release). The name has room for 11 characters, e.g. `HW3-v10.2.3`.
 3. Select the zip and tap **Start**. Any upload mode works.
 4. The station reboots into the new image and confirms it automatically once Bluetooth is up. If the new image fails to start, MCUboot reverts to the previous one.
 
