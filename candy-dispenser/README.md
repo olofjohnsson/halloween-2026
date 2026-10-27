@@ -2,7 +2,7 @@
 
 Firmware for the candy dispenser on the balcony. It has **no keypad and no display**:
 station 5 (see `../stations`) has the LCD and the code keypad. When the correct code
-is entered there, station 5 sends a BLE message and this dispenser releases one candy.
+is entered there, station 5 sends a BLE message and this dispenser releases some candy.
 
 ## How it works
 1. Station 5 shows the random code, the kids type it on station 5's keypad, and station 5
