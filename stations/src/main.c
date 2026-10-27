@@ -235,6 +235,29 @@ static struct bt_data ad[] = {
 };
 
 
+/* Relay: stations are spread out, so long-range messages are re-advertised by every station that hears
+ * them. The relay payload alternates with the station's own beacon so a pending activation keeps going. */
+#define RELAY_WINDOW_MS 3000
+#define RELAY_SWAP_MS 400
+#define RELAY_DEDUP_MS 5000
+#define RELAY_CACHE_SIZE 6
+
+struct relay_seen {
+    struct button_msg msg;
+    int64_t at_ms;
+};
+
+static uint8_t relay_data[SERVICE_DATA_LEN];
+static struct bt_data relay_ad[] = {
+    BT_DATA(BT_DATA_FLAGS, &adv_flags, sizeof(adv_flags)),
+    BT_DATA(BT_DATA_SVC_DATA16, relay_data, sizeof(relay_data)),
+};
+static struct relay_seen relay_cache[RELAY_CACHE_SIZE];
+static uint8_t relay_cache_next;
+static int64_t relay_until_ms;
+static int64_t relay_next_swap_ms;
+static bool relay_showing;
+
 static int lcd_expander_write(uint8_t value)
 {
     int rc = 0;
@@ -428,6 +451,7 @@ static void update_beacon(uint8_t type, uint8_t target, uint32_t value)
     service_data[12] = (uint8_t)((value >> 16) & 0xff);
 
     int rc = fota_adv_update(ad, ARRAY_SIZE(ad));
+    relay_showing = false;
     if (rc < 0) {
         LOG_ERR("Updating BLE beacon failed: %d", rc);
     } else {
@@ -595,8 +619,81 @@ static void test_release(void)
 }
 #endif
 
+static void maybe_relay(const struct button_msg *msg)
+{
+    if (msg->type != MSG_NEW_ROUND && msg->type != MSG_RELEASE_CANDY &&
+        msg->type != MSG_CANDY_DONE && msg->type != MSG_PLAY_TRACK) {
+        return;
+    }
+    /* Own messages and messages addressed to this station need no relay (target 0 = everyone/dispenser). */
+    if (msg->source == STATION_ID ||
+        (msg->target == STATION_ID && msg->type != MSG_NEW_ROUND)) {
+        return;
+    }
+    /* One relay at a time; the sender repeats its beacon, so a skipped message is caught on the next one. */
+    if (relay_until_ms != 0) {
+        return;
+    }
+
+    int64_t now = k_uptime_get();
+    for (size_t i = 0; i < RELAY_CACHE_SIZE; i++) {
+        const struct relay_seen *seen = &relay_cache[i];
+
+        if (seen->at_ms != 0 && now - seen->at_ms < RELAY_DEDUP_MS &&
+            seen->msg.type == msg->type && seen->msg.target == msg->target &&
+            seen->msg.source == msg->source && seen->msg.session == msg->session &&
+            seen->msg.value == msg->value) {
+            return;
+        }
+    }
+    relay_cache[relay_cache_next].msg = *msg;
+    relay_cache[relay_cache_next].at_ms = now;
+    relay_cache_next = (relay_cache_next + 1U) % RELAY_CACHE_SIZE;
+
+    relay_data[0] = (uint8_t)(HALLOWEEN_SERVICE_UUID & 0xff);
+    relay_data[1] = (uint8_t)(HALLOWEEN_SERVICE_UUID >> 8);
+    relay_data[2] = MAGIC_0;
+    relay_data[3] = MAGIC_1;
+    relay_data[4] = PROTOCOL_VERSION;
+    relay_data[5] = msg->type;
+    relay_data[6] = msg->target;
+    relay_data[7] = msg->source;
+    relay_data[8] = (uint8_t)(msg->session & 0xff);
+    relay_data[9] = (uint8_t)(msg->session >> 8);
+    relay_data[10] = (uint8_t)(msg->value & 0xff);
+    relay_data[11] = (uint8_t)((msg->value >> 8) & 0xff);
+    relay_data[12] = (uint8_t)((msg->value >> 16) & 0xff);
+
+    relay_showing = false;
+    relay_next_swap_ms = now;
+    relay_until_ms = now + RELAY_WINDOW_MS;
+    LOG_INF("Relaying type=%u source=%u target=%u", msg->type, msg->source, msg->target);
+}
+
+static void relay_tick(void)
+{
+    if (relay_until_ms == 0) {
+        return;
+    }
+
+    int64_t now = k_uptime_get();
+
+    if (now >= relay_until_ms) {
+        relay_until_ms = 0;
+        relay_showing = false;
+        (void)fota_adv_update(ad, ARRAY_SIZE(ad));
+    } else if (now >= relay_next_swap_ms) {
+        relay_next_swap_ms = now + RELAY_SWAP_MS;
+        relay_showing = !relay_showing;
+        (void)fota_adv_update(relay_showing ? relay_ad : ad,
+                              relay_showing ? ARRAY_SIZE(relay_ad) : ARRAY_SIZE(ad));
+    }
+}
+
 static void process_beacon(const struct button_msg *msg)
 {
+    maybe_relay(msg);
+
     /* Station 5 starts a new round after the candy was released. */
     if (msg->type == MSG_NEW_ROUND &&
         msg->target == 0 &&
@@ -1167,6 +1264,7 @@ int main(void)
         while (k_msgq_get(&beacon_msgq, &msg, K_NO_WAIT) == 0) {
             process_beacon(&msg);
         }
+        relay_tick();
 
         update_winning_pattern();
 

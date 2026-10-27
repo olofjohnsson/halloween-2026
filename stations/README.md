@@ -122,6 +122,16 @@ The 24-bit value carries the DFPlayer track in bits 0-15 (0 = none). `MSG_PLAY_T
 sequence number so a repeated beacon plays the track only once. `MSG_ACTIVATE` (value = track the next station plays)
 and `MSG_RELEASE_CANDY` (value = track the dispenser plays) use the track field too.
 
+### Relay (range)
+
+Stations are spread out in the garden, so not every device hears every other one. Each station re-advertises
+`MSG_NEW_ROUND`, `MSG_RELEASE_CANDY`, `MSG_CANDY_DONE` and `MSG_PLAY_TRACK` it hears (unchanged payload) for 3 s,
+alternating with its own beacon every 400 ms. A message already relayed in the last 5 s is not relayed again, which
+stops loops; senders repeat their beacons, so a lost relay is retried. `MSG_ACTIVATE` and the activation
+acknowledge are not relayed (they only travel between neighbouring stations). The candy dispenser does not relay,
+so at least one station must be within its range. The protocol version is unchanged, so only the stations need
+reflashing.
+
 ### Game flow
 - Station 1 starts active with a random session. After a correct answer, stations 1-4 repeatedly advertise `MSG_ACTIVATE` for the next station.
 - A waiting station accepts an activation only if it has no session yet or the session matches its own, so stale activations from an earlier round are ignored.
