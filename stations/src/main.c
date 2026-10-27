@@ -7,7 +7,6 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/i2c.h>
-#include <zephyr/drivers/pwm.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/hci.h>
@@ -129,7 +128,8 @@ static const struct gpio_dt_spec buttons[] = {
     GPIO_DT_SPEC_GET(DT_NODELABEL(button3), gpios),
 };
 
-static const struct pwm_dt_spec led = PWM_DT_SPEC_GET(DT_NODELABEL(halloween_led));
+static const struct gpio_dt_spec led =
+    GPIO_DT_SPEC_GET(DT_NODELABEL(halloween_led), gpios);
 
 #if DT_NODE_HAS_STATUS_OKAY(DT_ALIAS(led0))
 /* Board status LED (Pro Micro red LED on P0.15), used only for the boot indication. */
@@ -411,49 +411,28 @@ static void lcd_show_final(void)
     (void)lcd_print_at(0, 1, line2);
 }
 
-static int led_pct = -1;
-
-/* Sets the LED intensity 0..100 %. A squared curve makes fades look even to the eye. */
-static void set_led_pct(int pct)
+static void set_led(bool on)
 {
-    if (pct == led_pct) {
-        return;
-    }
-    led_pct = pct;
-
-    uint32_t pulse = (uint32_t)((uint64_t)led.period * pct * pct / 10000U);
-    int rc = pwm_set_pulse_dt(&led, pulse);
-
+    int rc = gpio_pin_set_dt(&led, on ? 1 : 0);
     if (rc < 0) {
-        LOG_ERR("LED PWM write failed: %d", rc);
+        LOG_ERR("LED GPIO write failed: %d", rc);
     }
 #if DT_NODE_HAS_STATUS_OKAY(DT_ALIAS(led0))
     /* Mirror on the board LED (Pro Micro P0.15) so the active state is visible. */
-    (void)gpio_pin_set_dt(&boot_led, pct >= 50 ? 1 : 0);
+    (void)gpio_pin_set_dt(&boot_led, on ? 1 : 0);
 #endif
 }
 
-static void set_led(bool on)
-{
-    set_led_pct(on ? 100 : 0);
-}
-
-/* Non-blocking lightning on the station LED while ACTIVE. A burst is a series of bright flashes
- * separated by dips, then a fade back to steady on. The intro on activation is a long burst whose
- * dips get shallower, so the light seems to stabilise; later short bursts come at random intervals. */
+/* Non-blocking lightning on the station LED while ACTIVE: a stuttering intro when the station
+ * activates that settles to steady on, then sporadic bursts at random intervals. Every burst has an
+ * even number of toggles, so it always ends with the LED on. */
+#define LIGHTNING_INTRO_TOGGLES 14
 #define LIGHTNING_GAP_MIN_MS 3000
 #define LIGHTNING_GAP_MAX_MS 12000
-#define LIGHTNING_INTRO_PAIRS 7
 
-static bool lightning_running;
-static bool lightning_settling;
-static bool lightning_intro;
-static uint8_t lightning_segs_left; /* even = next is a dip, odd = next is a flash */
-static int lightning_from_pct;
-static int lightning_to_pct;
-static int64_t lightning_seg_start_ms;
-static int64_t lightning_ramp_end_ms;
-static int64_t lightning_seg_end_ms;
+static uint8_t lightning_toggles_left;
+static bool lightning_level;
+static int64_t lightning_next_ms;
 static int64_t lightning_burst_at_ms; /* 0 = no burst scheduled */
 
 static uint32_t lightning_rnd(uint32_t min, uint32_t max)
@@ -468,66 +447,24 @@ static void lightning_schedule_burst(void)
 
 static void lightning_cancel(void)
 {
-    lightning_running = false;
+    lightning_toggles_left = 0;
     lightning_burst_at_ms = 0;
 }
 
-static void lightning_begin(uint8_t pairs, bool intro)
+static void lightning_begin(uint8_t toggles)
 {
-    lightning_running = true;
-    lightning_settling = false;
-    lightning_intro = intro;
-    lightning_segs_left = 2U * pairs;
-    lightning_to_pct = led_pct < 0 ? 100 : led_pct;
-    lightning_seg_end_ms = 0; /* start the first segment at once */
+    lightning_toggles_left = toggles;
+    lightning_level = true;
+    lightning_next_ms = 0; /* toggle at once */
     lightning_burst_at_ms = 0;
+    LOG_INF("Lightning: %u toggles", toggles);
 }
 
 static void lightning_start_intro(void)
 {
     if (IS_ENABLED(CONFIG_HALLOWEEN_LIGHTNING)) {
-        lightning_begin(LIGHTNING_INTRO_PAIRS, true);
+        lightning_begin(LIGHTNING_INTRO_TOGGLES);
     }
-}
-
-static void lightning_next_segment(int64_t now)
-{
-    int ramp, hold, pct;
-
-    lightning_from_pct = lightning_to_pct;
-    if (lightning_segs_left > 0) {
-        bool dip = (lightning_segs_left % 2U) == 0U;
-
-        if (dip) {
-            /* Intro dips get shallower and shorter as the pairs run out. */
-            int progress = lightning_intro ? (int)(2U * LIGHTNING_INTRO_PAIRS - lightning_segs_left) * 4 : 0;
-            int floor_pct = lightning_intro ? MIN(70, (int)lightning_rnd(0, 20) + progress * 3) : (int)lightning_rnd(0, 25);
-            bool blackout = !lightning_intro && lightning_rnd(0, 5) == 0;
-
-            pct = blackout ? 0 : floor_pct;
-            ramp = lightning_rnd(15, 60);
-            hold = blackout ? lightning_rnd(300, 700) : lightning_rnd(30, 200);
-        } else {
-            pct = lightning_rnd(65, 100);
-            ramp = lightning_rnd(4, 15);
-            hold = lightning_rnd(20, 80);
-        }
-        lightning_segs_left--;
-    } else if (!lightning_settling) {
-        lightning_settling = true;
-        pct = 100;
-        ramp = lightning_intro ? 500 : 120;
-        hold = 0;
-    } else {
-        lightning_running = false;
-        set_led_pct(100);
-        lightning_schedule_burst();
-        return;
-    }
-    lightning_to_pct = pct;
-    lightning_seg_start_ms = now;
-    lightning_ramp_end_ms = now + ramp;
-    lightning_seg_end_ms = now + ramp + hold;
 }
 
 static void lightning_update(void)
@@ -542,27 +479,24 @@ static void lightning_update(void)
         return;
     }
 
-    if (!lightning_running) {
-        if (lightning_burst_at_ms != 0 && now >= lightning_burst_at_ms) {
-            lightning_begin((uint8_t)lightning_rnd(1, 3), false);
-        } else {
+    if (lightning_toggles_left > 0) {
+        if (now < lightning_next_ms) {
             return;
         }
-    }
-
-    while (lightning_running && now >= lightning_seg_end_ms) {
-        lightning_next_segment(now);
-    }
-    if (!lightning_running) {
-        return;
-    }
-    if (now < lightning_ramp_end_ms) {
-        int64_t ramp = lightning_ramp_end_ms - lightning_seg_start_ms;
-
-        set_led_pct(lightning_from_pct +
-                    (int)((lightning_to_pct - lightning_from_pct) * (now - lightning_seg_start_ms) / ramp));
-    } else {
-        set_led_pct(lightning_to_pct);
+        lightning_level = !lightning_level;
+        set_led(lightning_level);
+        lightning_toggles_left--;
+        if (lightning_toggles_left == 0) {
+            lightning_schedule_burst();
+        } else if (lightning_level) {
+            lightning_next_ms = now + lightning_rnd(20, 90);
+        } else {
+            /* Mostly short gaps, now and then a longer blackout. */
+            lightning_next_ms = now + (lightning_rnd(0, 5) == 0 ? lightning_rnd(300, 700)
+                                                                : lightning_rnd(30, 200));
+        }
+    } else if (lightning_burst_at_ms != 0 && now >= lightning_burst_at_ms) {
+        lightning_begin((uint8_t)(2U * lightning_rnd(1, 4)));
     }
 }
 
@@ -1286,11 +1220,11 @@ int main(void)
     LOG_INF("Halloween station firmware v%s: station %d, correct button %d",
             APP_VERSION_STRING, STATION_ID, CORRECT_BUTTON);
 
-    if (!pwm_is_ready_dt(&led)) {
-        LOG_ERR("LED PWM device not ready");
+    rc = gpio_pin_configure_dt(&led, GPIO_OUTPUT_INACTIVE);
+    if (rc < 0) {
+        LOG_ERR("Cannot configure LED output: %d", rc);
         return 0;
     }
-    set_led(false);
 
     for (size_t i = 0; i < ARRAY_SIZE(buttons); i++) {
         rc = gpio_pin_configure_dt(&buttons[i], GPIO_INPUT);

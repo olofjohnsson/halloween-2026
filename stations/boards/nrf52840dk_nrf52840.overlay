@@ -19,16 +19,11 @@
         kcol3: kcol_3 { compatible = "halloween,gpio"; gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>; };
     };
 
-    /* LED1 (P0.13, active low) as a PWM output, so inverted polarity: higher intensity = brighter LED1. */
     halloween_led: halloween_led {
-        compatible = "halloween,pwm-led";
-        pwms = <&pwm0 0 PWM_USEC(200) PWM_POLARITY_INVERTED>;
+        compatible = "halloween,gpio";
+        gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
         label = "LED1 as station LED";
     };
-};
-
-&pwm0 {
-    status = "okay";
 };
 
 &button1 { gpios = <&gpio1 10 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>; };

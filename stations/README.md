@@ -9,8 +9,8 @@ Prototype firmware for five Pro Micro nRF52840 stations. Each station has:
 ## Important hardware note
 
 `boards/promicro_nrf52840_nrf52840.overlay` uses these GPIOs (as wired; all stations share the button pins):
-- buttons: P0.17 (btn 1), P0.20 (btn 2), P0.22 (btn 3)
-- LED MOSFET control: P0.09 (PWM output, dimmable; an NFC pin, so `CONFIG_NFCT_PINS_AS_GPIOS=y` is set in the board conf and a full flash/erase writes the UICR)
+- buttons: P0.08 (btn 1), P0.17 (btn 2), P0.20 (btn 3)
+- LED MOSFET control: P1.06
 
 Station 5 additionally uses the LCD, keypad and DFPlayer pins listed under "Station 5 wiring (Pro Micro)" below. Verify that all pins are exposed and unused on your exact Pro Micro board. The LED GPIO is a logic output only; do not power an LED strip directly from an nRF52840 GPIO. Use a suitable MOSFET/driver and a separately powered LED supply with common ground as appropriate.
 
@@ -148,12 +148,12 @@ reflashing.
 
 | Function | Pins |
 |----------|------|
-| Buttons 1 / 2 / 3 | P0.17 / P0.20 / P0.22 (to GND) |
+| Buttons 1 / 2 / 3 | P0.08 / P0.17 / P0.20 (to GND) |
 | LCD I2C | SDA P0.24, SCL P1.00 |
 | DFPlayer Mini | RX <- P1.01 (via 1 kΩ), TX -> P1.02 |
 | Keypad | see "Station 5 keypad" below |
 
-Summary (Pro Micro, as wired): keypad ribbon pins 1..7 on P0.31, P0.29, P0.02, P1.15, P1.13, P1.11, P0.06; buttons P0.17, P0.20, P0.22; LED P0.09; LCD I2C SDA P0.24 / SCL P1.00; DFPlayer RX <- P1.01 (via 1 kΩ), TX -> P1.02. Keypad connector order assumed R1-R4, C1-C3.
+Summary (Pro Micro, as wired): keypad ribbon pins 1..7 on P0.31, P0.29, P0.02, P1.15, P1.13, P1.11, P0.06; buttons P0.08, P0.17, P0.20; LED P1.06; LCD I2C SDA P0.24 / SCL P1.00; DFPlayer RX <- P1.01 (via 1 kΩ), TX -> P1.02. Keypad connector order assumed R1-R4, C1-C3.
 
 The simple 16-bit session ID is for avoiding accidental cross-game activation, not security. This protocol is suitable for a supervised Halloween game, not access control.
 
@@ -177,10 +177,9 @@ in a folder named `MP3` (`/MP3/0001.mp3`); the track number is the file name num
 
 ## LED lightning
 
-The LED is a PWM output (5 kHz), so the effect uses real dimming. While a station is active its LED flickers like
-lightning: a stuttering burst of bright flashes and dips when it activates, with shallower and shallower dips until it
-fades to steady on, then a short random burst every 3-12 s (sometimes with a brief blackout). A wrong answer cancels
-any running burst. The LED must be driven through a MOSFET that works with PWM (an LED strip or lamp, not a relay). Turn it off with
+While a station is active its LED flickers like lightning (on/off only): a stuttering burst when it activates that
+settles to steady on, then a short random burst every 3-12 s (sometimes with a brief blackout). A wrong answer cancels
+any running burst. Turn it off with
 `CONFIG_HALLOWEEN_LIGHTNING=n` in `station_N.conf`. The timing constants (`LIGHTNING_*`) are in `src/main.c`.
 
 Options in `station_N.conf`:
