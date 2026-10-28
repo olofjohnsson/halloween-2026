@@ -91,6 +91,9 @@ LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
 #define NEW_ROUND_BEACON_MS 60000
 /* Station 1 announces a new round for this long after it (re)boots, then plays its start track. */
 #define RESTART_BEACON_MS 15000
+/* Station 1: holding answer buttons 1 and 2 together this long restarts the game. */
+#define RESTART_HOLD_MS 5000
+#define RESTART_GRACE_MS 150 /* wait for the second button before treating a press as an answer */
 #define STATUS_SHOW_MS 2000
 #define CODE_LEN 6
 
@@ -263,7 +266,7 @@ static int64_t relay_until_ms;
 static int64_t relay_next_swap_ms;
 static bool relay_showing;
 
-static int configure_gpio_voltage_level(void)
+static void configure_gpio_voltage_level(void)
 {
     if ((NRF_UICR->REGOUT0 & UICR_REGOUT0_VOUT_Msk) !=
         (UICR_REGOUT0_VOUT_3V3 << UICR_REGOUT0_VOUT_Pos)) {
@@ -687,6 +690,22 @@ static void begin_round(uint16_t session)
 static void finish_correct_answer(void);
 
 /* Station 5 only: the candy was released, so announce the next round. */
+/* Station 1 only: starts a new game with a fresh session and tells every station to reset to it. */
+static void start_game(void)
+{
+    uint16_t session;
+
+    do {
+        session = (uint16_t)sys_rand32_get();
+    } while (session == 0 || session == session_id);
+
+    LOG_INF("Station 1 starts the game (session=%u)", session);
+    begin_round(session);
+    /* The start track is sent when the announcement ends. */
+    update_beacon(MSG_NEW_ROUND, 0, 0);
+    new_round_until_ms = k_uptime_get() + RESTART_BEACON_MS;
+}
+
 static void announce_new_round(void)
 {
     uint16_t session;
@@ -953,6 +972,39 @@ static void update_winning_pattern(void)
     set_led((win_phase % 2U) == 0U);
     int duration_ms = (win_phase == 5U) ? WIN_PAUSE_MS : WIN_FLASH_MS;
     win_phase_deadline_ms = k_uptime_get() + duration_ms;
+}
+
+static bool restart_buttons_held(void)
+{
+    return STATION_ID == 1 && button_is_pressed(&buttons[0]) && button_is_pressed(&buttons[1]);
+}
+
+static bool restart_fired;
+static int64_t restart_hold_start_ms;
+
+/* Station 1: restarts the game once buttons 1 and 2 have been held together for RESTART_HOLD_MS. */
+static void restart_combo_tick(void)
+{
+    if (STATION_ID != 1) {
+        return;
+    }
+    if (!button_is_pressed(&buttons[0]) && !button_is_pressed(&buttons[1])) {
+        restart_fired = false;
+    }
+    if (!restart_buttons_held()) {
+        restart_hold_start_ms = 0;
+        return;
+    }
+
+    int64_t now = k_uptime_get();
+
+    if (restart_hold_start_ms == 0) {
+        restart_hold_start_ms = now;
+    } else if (!restart_fired && now - restart_hold_start_ms >= RESTART_HOLD_MS) {
+        restart_fired = true;
+        LOG_INF("Buttons 1+2 held: restarting the game");
+        start_game();
+    }
 }
 
 static void handle_answer(unsigned int button_number)
@@ -1231,7 +1283,7 @@ static void io_test_loop(void)
 int main(void)
 {
     int rc;
-    
+
     configure_gpio_voltage_level();
 
     boot_blink();
@@ -1319,15 +1371,7 @@ int main(void)
     }
 
     if (STATION_ID == 1) {
-        session_id = (uint16_t)sys_rand32_get();
-        if (session_id == 0) {
-            session_id = 1;
-        }
-        LOG_INF("Station 1 starts the game (session=%u)", session_id);
-        begin_round(session_id);
-        /* Tell every station to reset to this session; the start track is sent when this ends. */
-        update_beacon(MSG_NEW_ROUND, 0, 0);
-        new_round_until_ms = k_uptime_get() + RESTART_BEACON_MS;
+        start_game();
     } else {
         state = ST_WAITING;
         set_led(false);
@@ -1402,6 +1446,7 @@ int main(void)
 
         update_winning_pattern();
         lightning_update();
+        restart_combo_tick();
 
 #if CONFIG_HALLOWEEN_TEST_SKIP_PUZZLE
         if (state == ST_WAITING) {
@@ -1427,8 +1472,18 @@ int main(void)
                     /* Simple debounce; wait for release to avoid repeat events. */
                     k_msleep(30);
                     if (button_is_pressed(&buttons[i])) {
-                        handle_answer((unsigned int)i + 1);
+                        bool combo = false;
+
+                        if (STATION_ID == 1 && i < 2) {
+                            k_msleep(RESTART_GRACE_MS);
+                            combo = restart_buttons_held();
+                        }
+                        if (!combo && !restart_fired) {
+                            handle_answer((unsigned int)i + 1);
+                        }
                         while (button_is_pressed(&buttons[i])) {
+                            restart_combo_tick();
+                            lightning_update();
                             k_msleep(10);
                         }
                         break;

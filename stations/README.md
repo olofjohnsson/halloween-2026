@@ -105,7 +105,9 @@ Notes:
 
 ## Restarting the game
 
-Restart the whole game by power-cycling (or resetting) **station 1**. It picks a new session ID and announces a
+Restart the whole game by power-cycling (or resetting) **station 1**, or by holding its answer buttons 1 and 2
+pressed together for 5 s (works in any state; press both within 150 ms so no answer is registered, and release
+after the lightning intro starts). Station 1 picks a new session ID and announces a
 new round for 15 s; stations 2-5 reset to waiting as soon as they hear it (also via the relay), and station 1
 becomes active again with the lightning effect and its start track. The other stations never need a restart. A
 station that missed the announcement ignores the old round's activations, so just restart station 1 again.
