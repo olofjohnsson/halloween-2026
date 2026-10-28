@@ -227,15 +227,20 @@ in a folder named `MP3` (`/MP3/0001.mp3`); the track number is the file name num
 | `0007.mp3` | jag ska limma fast din telefon under skon |
 | `0008.mp3` | en gräshoppa kommer gnaga på din macka |
 | `0009.mp3` | allt är så läskigt, så läskigt roligt |
-| `0010.mp3` | välkommen1 |
-| `0011.mp3` | välkommen2 |
-| `0012.mp3` | välkommen3 |
-| `0013.mp3` | välkommen4 (bra) |
-| `0014.mp3` | välkommen5 (bäst) |
+| `0010.mp3` | välkommen 1 |
+| `0011.mp3` | välkommen 2 |
+| `0012.mp3` | välkommen 3 |
+| `0013.mp3` | välkommen 4 (bra) |
+| `0014.mp3` | välkommen 5 (bäst) |
 | `0015.mp3` | vänta på er tur1 |
 | `0016.mp3` | vänta på er tur2 |
 | `0017.mp3` | vänta på er tur3 |
 | `0018.mp3` | vänta på er tur4 |
+| `0019.mp3` | rätt svar 1 klassisk fanfar med trummor o trumpet (lätt pampig)|
+| `0020.mp3` | rätt svar 2 jingel i radiosporten-anda|
+| `0021.mp3` | rätt svar 3 applåder och käck jingel|
+| `0022.mp3` | rätt svar 4 syntetiska applåder |
+| `0023.mp3` | rätt svar 5 klassisk fanfar med trummor o trumpet (kraftigt pampig)|
 
 ## LED lightning
 
