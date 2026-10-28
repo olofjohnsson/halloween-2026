@@ -263,6 +263,20 @@ static int64_t relay_until_ms;
 static int64_t relay_next_swap_ms;
 static bool relay_showing;
 
+static int configure_gpio_voltage_level(void)
+{
+    if ((NRF_UICR->REGOUT0 & UICR_REGOUT0_VOUT_Msk) !=
+        (UICR_REGOUT0_VOUT_3V3 << UICR_REGOUT0_VOUT_Pos)) {
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {}
+        NRF_UICR->REGOUT0 = (NRF_UICR->REGOUT0 & ~UICR_REGOUT0_VOUT_Msk) |
+                            (UICR_REGOUT0_VOUT_3V3 << UICR_REGOUT0_VOUT_Pos);
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {}
+        NVIC_SystemReset();
+    }
+}
+
 static int lcd_expander_write(uint8_t value)
 {
     int rc = 0;
@@ -1217,6 +1231,8 @@ static void io_test_loop(void)
 int main(void)
 {
     int rc;
+    
+    configure_gpio_voltage_level();
 
     boot_blink();
 
