@@ -60,6 +60,11 @@ config HALLOWEEN_CORRECT_TRACK
     range 0 255
     default 0
 
+config HALLOWEEN_WRONG_TRACK
+    int "Track to play on this station on a wrong answer or wrong code (0 = none)"
+    range 0 255
+    default 0
+
 config HALLOWEEN_NEXT_STATION_TRACK
     int "Track the next station plays when this station activates it (0 = none)"
     range 0 255

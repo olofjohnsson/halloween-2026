@@ -201,6 +201,7 @@ static const struct device *const dfplayer_dev = DEVICE_DT_GET(DT_NODELABEL(dfpl
 static uint8_t play_seq;
 static uint8_t last_play_seq[LAST_STATION_ID + 1];
 static int64_t play_beacon_until_ms;
+static bool release_pending; /* station 5: send the release request once the play beacon ends */
 
 static enum station_state state = ST_WAITING;
 static uint16_t session_id;
@@ -665,6 +666,7 @@ static void begin_round(uint16_t session)
     code_hidden = false;
     activation_acked = false;
     delayed_track_at_ms = 0;
+    release_pending = false;
     status_text = NULL;
     clear_entry();
 
@@ -1017,6 +1019,7 @@ static void handle_answer(unsigned int button_number)
 
     if (button_number != CORRECT_BUTTON) {
         LOG_INF("Wrong answer at station %d", STATION_ID);
+        dfplayer_play(CONFIG_HALLOWEEN_WRONG_TRACK);
         send_remote_track(CONFIG_HALLOWEEN_REMOTE_WRONG_TRACK);
         flash_led(3, 100, 100);
         return;
@@ -1095,12 +1098,25 @@ static void handle_key(char key)
                 final_code = 0;
                 clear_entry();
                 state = ST_RELEASING;
-                update_beacon(MSG_RELEASE_CANDY, DISPENSER_ID, CONFIG_HALLOWEEN_DISPENSER_TRACK);
+                /* The correct-code track shares the beacon slot, so the release request follows it. */
+                dfplayer_play(CONFIG_HALLOWEEN_CORRECT_TRACK);
+                if (CONFIG_HALLOWEEN_REMOTE_CORRECT_TRACK > 0) {
+                    send_remote_track(CONFIG_HALLOWEEN_REMOTE_CORRECT_TRACK);
+                    release_pending = true;
+                } else {
+                    update_beacon(MSG_RELEASE_CANDY, DISPENSER_ID, CONFIG_HALLOWEEN_DISPENSER_TRACK);
+                }
                 LOG_INF("Correct code; asking dispenser to release candy");
             } else {
                 status_text = "WRONG CODE!";
                 status_until_ms = k_uptime_get() + STATUS_SHOW_MS;
                 clear_entry();
+                dfplayer_play(CONFIG_HALLOWEEN_WRONG_TRACK);
+                send_remote_track(CONFIG_HALLOWEEN_REMOTE_WRONG_TRACK);
+                /* Show the correct code again for another display period. */
+                code_hidden = false;
+                final_code_deadline_ms = (CODE_DISPLAY_MS > 0) ?
+                    k_uptime_get() + CODE_DISPLAY_MS : 0;
             }
         }
     } else if (key >= '0' && key <= '9' && entry_len < CODE_LEN) {
@@ -1427,7 +1443,12 @@ int main(void)
         }
 
         if (play_beacon_until_ms != 0 && k_uptime_get() >= play_beacon_until_ms) {
-            update_beacon(MSG_IDLE, 0, state == ST_ACTIVE ? IDLE_ACTIVE_FLAG : 0);
+            if (release_pending) {
+                release_pending = false;
+                update_beacon(MSG_RELEASE_CANDY, DISPENSER_ID, CONFIG_HALLOWEEN_DISPENSER_TRACK);
+            } else {
+                update_beacon(MSG_IDLE, 0, state == ST_ACTIVE ? IDLE_ACTIVE_FLAG : 0);
+            }
         }
 
         /* The beacon slot is shared with the activation message, so the delayed track waits until the
