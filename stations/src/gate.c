@@ -69,6 +69,7 @@ struct beacon_msg {
     uint32_t value;
 };
 
+static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(DT_NODELABEL(halloween_led), gpios);
 static const struct gpio_dt_spec pir = GPIO_DT_SPEC_GET(DT_NODELABEL(halloween_pir), gpios);
 
 K_MSGQ_DEFINE(beacon_msgq, sizeof(struct beacon_msg), 8, 4);
@@ -95,6 +96,84 @@ static int64_t next_welcome_ms; /* 0 = none scheduled */
 static bool motion_during_round;
 static uint16_t last_end_session_5;
 static uint16_t last_end_session_1;
+
+/* Lightning on the MOSFET LED, as on the puzzle stations: a stuttering intro when the welcome starts that
+ * settles to steady on, then sporadic bursts while the game is going. Every burst has an even number of
+ * toggles, so it ends with the LED on. The LED is off while the gate is idle. */
+#define LIGHTNING_INTRO_TOGGLES 14
+#define LIGHTNING_GAP_MIN_MS 3000
+#define LIGHTNING_GAP_MAX_MS 12000
+
+static uint8_t lightning_toggles_left;
+static bool lightning_level;
+static int64_t lightning_next_ms;
+static int64_t lightning_burst_at_ms; /* 0 = no burst scheduled */
+static bool led_lit;
+
+static void set_led(bool on)
+{
+    (void)gpio_pin_set_dt(&led, on ? 1 : 0);
+}
+
+static uint32_t lightning_rnd(uint32_t min, uint32_t max)
+{
+    return min + sys_rand32_get() % (max - min + 1U);
+}
+
+static void lightning_begin(uint8_t toggles)
+{
+    lightning_toggles_left = toggles;
+    lightning_level = true;
+    lightning_next_ms = 0; /* toggle at once */
+    lightning_burst_at_ms = 0;
+}
+
+static void lightning_update(bool active)
+{
+    int64_t now = k_uptime_get();
+
+    if (!active) {
+        if (led_lit) {
+            led_lit = false;
+            lightning_toggles_left = 0;
+            lightning_burst_at_ms = 0;
+            set_led(false);
+        }
+        return;
+    }
+    if (!led_lit) {
+        led_lit = true;
+        if (IS_ENABLED(CONFIG_HALLOWEEN_LIGHTNING)) {
+            lightning_begin(LIGHTNING_INTRO_TOGGLES);
+        } else {
+            set_led(true);
+        }
+        return;
+    }
+    if (!IS_ENABLED(CONFIG_HALLOWEEN_LIGHTNING)) {
+        return;
+    }
+
+    if (lightning_toggles_left > 0) {
+        if (now < lightning_next_ms) {
+            return;
+        }
+        lightning_level = !lightning_level;
+        set_led(lightning_level);
+        lightning_toggles_left--;
+        if (lightning_toggles_left == 0) {
+            lightning_burst_at_ms = now + lightning_rnd(LIGHTNING_GAP_MIN_MS, LIGHTNING_GAP_MAX_MS);
+        } else if (lightning_level) {
+            lightning_next_ms = now + lightning_rnd(20, 90);
+        } else {
+            /* Mostly short gaps, now and then a longer blackout. */
+            lightning_next_ms = now + (lightning_rnd(0, 5) == 0 ? lightning_rnd(300, 700)
+                                                                : lightning_rnd(30, 200));
+        }
+    } else if (lightning_burst_at_ms != 0 && now >= lightning_burst_at_ms) {
+        lightning_begin((uint8_t)(2U * lightning_rnd(1, 4)));
+    }
+}
 
 static void update_beacon(uint8_t type, uint8_t target, uint32_t value)
 {
@@ -278,6 +357,10 @@ int main(void)
         LOG_ERR("PIR pin setup failed");
         return 0;
     }
+    if (!gpio_is_ready_dt(&led) || gpio_pin_configure_dt(&led, GPIO_OUTPUT_INACTIVE) < 0) {
+        LOG_ERR("LED pin setup failed");
+        return 0;
+    }
 
     rc = bt_enable(NULL);
     if (rc < 0) {
@@ -337,7 +420,9 @@ int main(void)
             motion_detected(now);
         }
 
-        k_msleep(50);
+        lightning_update(state != GATE_IDLE);
+
+        k_msleep(20);
     }
     return 0;
 }

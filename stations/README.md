@@ -121,6 +121,10 @@ that relays).
    seen during the round, the welcome starts again after `CONFIG_HALLOWEEN_GATE_NEXT_WELCOME_SECONDS` (default 10); otherwise
    everything stays idle until the next motion.
 
+While a welcome or a game is in progress the gate's MOSFET LED (P1.06, as on the stations) shows the lightning effect
+(stuttering intro, then steady with sporadic bursts, see [LED lightning](#led-lightning)); it is off while the gate
+is idle. `CONFIG_HALLOWEEN_LIGHTNING=n` makes it steady on instead.
+
 The gate must be within range of station 1 (to hear its answer) and, for the end of round, of a station that relays
 station 5's announcement. The PIR is ignored for the first 30 s after power-up. Wiring (Pro Micro): PIR OUT -> P0.22
 (example pin, `halloween_pir` in the overlay; verify it is free), VCC 5 V, GND. Motion that continues keeps counting: the PIR
