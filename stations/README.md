@@ -184,6 +184,29 @@ uses P1.08 (TX -> 1 kΩ -> DFPlayer RX) and P1.09 (RX <- DFPlayer TX) because P1
 the DK's own 5 V pin powers the module. Files on the SD card are `0001.mp3`, `0002.mp3`, ...
 in a folder named `MP3` (`/MP3/0001.mp3`); the track number is the file name number, independent of copy order.
 
+### Track list (file name -> spoken text)
+
+| File | Text |
+|------|------|
+| `0001.mp3` | du ska få dansa på en myrstack |
+| `0002.mp3` | dumheter och inget bus |
+| `0003.mp3` | jag ska ta ditt godis och ge det till din mamma |
+| `0004.mp3` | din kudde kommer vara hård som sten inatt |
+| `0005.mp3` | myrorna biter dig på tårna |
+| `0006.mp3` | du kommer skratta så du kissar på dig |
+| `0007.mp3` | jag ska limma fast din telefon under skon |
+| `0008.mp3` | en gräshoppa kommer gnaga på din macka |
+| `0009.mp3` | allt är så läskigt, så läskigt roligt |
+| `0010.mp3` | välkommen1 |
+| `0011.mp3` | välkommen2 |
+| `0012.mp3` | välkommen3 |
+| `0013.mp3` | välkommen4 (bra) |
+| `0014.mp3` | välkommen5 (bäst) |
+| `0015.mp3` | vänta på er tur1 |
+| `0016.mp3` | vänta på er tur2 |
+| `0017.mp3` | vänta på er tur3 |
+| `0018.mp3` | vänta på er tur4 |
+
 ## LED lightning
 
 While a station is active its LED flickers like lightning (on/off only): a stuttering burst when it activates that
