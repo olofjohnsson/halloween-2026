@@ -25,7 +25,7 @@ west flash
 
 The first flash of a board must be done over SWD (`west flash`), because it installs MCUboot. This replaces the Adafruit UF2 bootloader that Pro Micro boards ship with. Build with `promicro_nrf52840/nrf52840` (not the `/uf2` variant). After that, update over the air, see [FOTA](#fota-over-the-air-updates).
 
-For stations 2 through 5, use the corresponding `station_N.conf` file. Build each image separately.
+For stations 2 through 5, use the corresponding `station_N.conf` file. The gate station uses `station_gate.conf` (`./build_fota.sh gate`). Build each image separately.
 
 If your board target is named differently in your board package, use the exact target shown by `west boards`.
 
@@ -103,13 +103,39 @@ Notes:
 - The SMP service is unauthenticated. MCUboot only accepts images signed with the project key, but the default key in the SDK is public. For anything beyond a family game, set your own key with `SB_CONFIG_BOOT_SIGNATURE_KEY_FILE` in `sysbuild.conf` and keep it out of git.
 - The station firmware is in `src/main.c`; the shared FOTA code is in `../common/`.
 
+## Gate station
+
+The gate station (Pro Micro nRF52840 + PIR sensor, `src/gate.c`, built with `station_gate.conf`, advertised as
+`GT-v<version>`) is the first step of the game. It only listens and sends beacons; it has no DFPlayer, the sound comes
+from a music player (`CONFIG_HALLOWEEN_GATE_PLAYER`, default 1; the player must be in range of the gate or of a station
+that relays).
+
+1. **Idle:** motion starts a random welcome track (`CONFIG_HALLOWEEN_GATE_WELCOME_FIRST..LAST`, default 10-14) on the music player.
+2. **Welcome:** `CONFIG_HALLOWEEN_GATE_WELCOME_SECONDS` (default 10, set it to the length of the welcome tracks) later the gate
+   sends `MSG_ACTIVATE` (source 6, target 1) until station 1 answers that it is active (60 s at most). Station 1 accepts it
+   regardless of session and keeps the session it got from the last `MSG_NEW_ROUND`.
+3. **Running:** motion plays a random wait track (`CONFIG_HALLOWEEN_GATE_WAIT_FIRST..LAST`, default 15-18, at most one per
+   `CONFIG_HALLOWEEN_GATE_WAIT_COOLDOWN_SECONDS`, default 30) and is remembered.
+4. **End of round:** when the gate hears `MSG_NEW_ROUND` from station 5 (candy released, relayed by the stations) or from
+   station 1 (restart), or after `CONFIG_HALLOWEEN_GATE_GAME_TIMEOUT_MINUTES` (default 20), all stations are waiting. If motion was
+   seen during the round, the welcome starts again after `CONFIG_HALLOWEEN_GATE_NEXT_WELCOME_SECONDS` (default 10); otherwise
+   everything stays idle until the next motion.
+
+The gate must be within range of station 1 (to hear its answer) and, for the end of round, of a station that relays
+station 5's announcement. The PIR is ignored for the first 30 s after power-up. Wiring (Pro Micro): PIR OUT -> P0.22
+(example pin, `halloween_pir` in the overlay; verify it is free), VCC 5 V, GND. Motion that continues keeps counting: the PIR
+output is level-triggered, so someone standing at the gate during the round gets another welcome afterwards.
+Without a gate station, flash station 1 with `CONFIG_HALLOWEEN_GATE=n` and it starts by itself as before.
+
 ## Restarting the game
 
 Restart the whole game by power-cycling (or resetting) **station 1**, or by holding its answer buttons 1 and 2
 pressed together for 5 s (works in any state; press both within 150 ms so no answer is registered, and release
 after the lightning intro starts). Station 1 picks a new session ID and announces a
-new round for 15 s; stations 2-5 reset to waiting as soon as they hear it (also via the relay), and station 1
-becomes active again with the lightning effect and its start track. The other stations never need a restart. A
+new round for 15 s; stations 2-5 reset to waiting as soon as they hear it (also via the relay). Without a gate
+station, station 1 becomes active again with the lightning effect and its start track. With the gate station
+(`CONFIG_HALLOWEEN_GATE=y`, set in `station_1.conf`) every station is waiting after a restart, and the game
+starts again when the gate sees movement. The other stations never need a restart. A
 station that missed the announcement ignores the old round's activations, so just restart station 1 again.
 
 ## Protocol
@@ -124,12 +150,12 @@ Message payload:
 
 | Type | Name | Sent by | Meaning |
 |------|------|---------|---------|
-| 1 | `MSG_ACTIVATE` | stations 1-4 | activate the next station |
+| 1 | `MSG_ACTIVATE` | stations 1-4, gate (source 6, target 1) | activate the next station |
 | 3 | `MSG_IDLE` | all | nothing to say |
 | 4 | `MSG_RELEASE_CANDY` | station 5 | correct code entered; dispenser (target 0) should release candy |
 | 5 | `MSG_NEW_ROUND` | station 5, station 1 | start a new round with a fresh session (station 1 sends it for 15 s after it boots) |
 | 7 | `MSG_CANDY_DONE` | dispenser | candy released for this session |
-| 8 | `MSG_PLAY_TRACK` | stations 1-5 | start a DFPlayer track on the target station (1-5), the dispenser (0) or music player N (target `10 + N`, see [`music-player/`](../music-player/README.md)) |
+| 8 | `MSG_PLAY_TRACK` | stations 1-5, gate (source 6) | start a DFPlayer track on the target station (1-5), the dispenser (0) or music player N (target `10 + N`, see [`music-player/`](../music-player/README.md)) |
 
 The 24-bit value carries the DFPlayer track in bits 0-15 (0 = none). `MSG_PLAY_TRACK` also uses bits 16-23 as a
 sequence number so a repeated beacon plays the track only once. `MSG_ACTIVATE` (value = track the next station plays)
@@ -146,7 +172,7 @@ so at least one station must be within its range. The protocol version is unchan
 reflashing.
 
 ### Game flow
-- Station 1 starts active with a random session. After a correct answer, stations 1-4 repeatedly advertise `MSG_ACTIVATE` for the next station.
+- With the gate station (default, see [Gate station](#gate-station)) station 1 waits after boot and after every round until the gate activates it. Without it (`CONFIG_HALLOWEEN_GATE=n`) station 1 starts active with a random session. After a correct answer, stations 1-4 repeatedly advertise `MSG_ACTIVATE` for the next station.
 - A waiting station accepts an activation only if it has no session yet or the session matches its own, so stale activations from an earlier round are ignored.
 - When the next station has activated and answers with the same session, the previous station stops advertising the activation (acknowledge), so a rebooted station cannot be re-activated by an old beacon.
 - Station 5 (LCD + keypad) generates a random six-digit code (never containing 4, 5 or 6, since those keypad keys are broken) and shows it for `CONFIG_HALLOWEEN_CODE_DISPLAY_SECONDS` (default 15 s, 0 = always), then hides it. The kids type it on the keypad: digits are shown on the LCD, `*` clears, `#` submits (`WRONG CODE!` / `NEED 6 DIGITS` on errors). The code never leaves station 5.

@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(halloween_station)
 
-target_sources(app PRIVATE
-    src/main.c
-    ../common/fota.c
-)
+if(CONFIG_HALLOWEEN_GATE_STATION)
+  target_sources(app PRIVATE src/gate.c)
+else()
+  target_sources(app PRIVATE src/main.c)
+endif()
+target_sources(app PRIVATE ../common/fota.c)
 target_include_directories(app PRIVATE ../common)
 
-if(CONFIG_HALLOWEEN_DFPLAYER)
+if(CONFIG_HALLOWEEN_DFPLAYER AND NOT CONFIG_HALLOWEEN_GATE_STATION)
   target_sources(app PRIVATE ../common/dfplayer.c)
 endif()

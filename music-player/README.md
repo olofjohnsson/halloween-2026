@@ -7,7 +7,7 @@ one on player 2.
 
 ## IDs
 
-A player with `PLAYER_ID = N` (1-9) answers to protocol target `10 + N`. It accepts requests from stations 1-5
+A player with `PLAYER_ID = N` (1-9) answers to protocol target `10 + N`. It accepts requests from stations 1-5 and the gate station (source 6)
 and ignores everything else. Beacons repeat for a few seconds; each station's sequence number is played once.
 
 To make a station start a track on a player, set in `stations/station_N.conf`:

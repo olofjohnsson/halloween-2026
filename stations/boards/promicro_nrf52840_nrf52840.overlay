@@ -45,6 +45,13 @@
         kcol3: kcol_3 { compatible = "halloween,gpio"; gpios = <&gpio1 13 GPIO_ACTIVE_HIGH>; };
     };
 
+    /* Gate station only: PIR motion sensor output (EXAMPLE pin, verify it is free/exposed on your board). */
+    halloween_pir: halloween_pir {
+        compatible = "halloween,gpio";
+        gpios = <&gpio0 22 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
+        label = "PIR motion sensor";
+    };
+
     halloween_led: halloween_led {
         compatible = "halloween,gpio";
         gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;

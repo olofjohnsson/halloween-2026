@@ -25,11 +25,13 @@ static const uint8_t PROTOCOL_VERSION = 1;
 static const uint8_t MSG_PLAY_TRACK = 8;
 static const uint8_t MUSIC_PLAYER_TARGET_BASE = 10;
 static const uint8_t LAST_STATION_ID = 5;
+static const uint8_t GATE_ID = 6; // the gate station may also request tracks
+static const uint8_t MAX_SOURCE = GATE_ID;
 static const uint8_t MY_TARGET = MUSIC_PLAYER_TARGET_BASE + PLAYER_ID;
 
 // A BLE callback must not block, so it only queues the request for loop().
 static volatile uint16_t pending_track = 0;
-static uint8_t last_seq[LAST_STATION_ID + 1];
+static uint8_t last_seq[MAX_SOURCE + 1];
 
 static void df_send(uint8_t cmd, uint16_t param)
 {
@@ -80,7 +82,7 @@ static void handle_payload(const uint8_t *p, size_t len)
 
             // Beacons repeat for a few seconds, so play each sequence number once per station.
             if (type == MSG_PLAY_TRACK && target == MY_TARGET && source >= 1 &&
-                source <= LAST_STATION_ID && seq != last_seq[source]) {
+                source <= MAX_SOURCE && seq != last_seq[source]) {
                 last_seq[source] = seq;
                 pending_track = track;
             }

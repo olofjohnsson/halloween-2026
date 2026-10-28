@@ -22,6 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - { name: station-gate, app: stations, board: promicro_nrf52840/nrf52840, extra: "-DEXTRA_CONF_FILE=station_gate.conf" }
           - { name: station-1, app: stations, board: promicro_nrf52840/nrf52840, extra: "-DEXTRA_CONF_FILE=station_1.conf" }
           - { name: station-2, app: stations, board: promicro_nrf52840/nrf52840, extra: "-DEXTRA_CONF_FILE=station_2.conf" }
           - { name: station-3, app: stations, board: promicro_nrf52840/nrf52840, extra: "-DEXTRA_CONF_FILE=station_3.conf" }

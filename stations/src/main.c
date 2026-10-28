@@ -83,6 +83,8 @@ LOG_MODULE_REGISTER(halloween, LOG_LEVEL_INF);
 /* Any -> station/dispenser: start a track there. */
 #define MSG_PLAY_TRACK 8
 #define DISPENSER_ID 0
+/* The gate station (PIR) activates station 1 with MSG_ACTIVATE (see gate.c). */
+#define GATE_ID 6
 /* Music player N (ESP32-C3) is addressed as target MUSIC_PLAYER_TARGET_BASE + N. */
 #define MUSIC_PLAYER_TARGET_BASE 10
 #define PLAY_BEACON_MS 3000
@@ -670,7 +672,7 @@ static void begin_round(uint16_t session)
     status_text = NULL;
     clear_entry();
 
-    if (STATION_ID == 1) {
+    if (STATION_ID == 1 && !IS_ENABLED(CONFIG_HALLOWEEN_GATE)) {
         state = ST_ACTIVE;
         set_led(true);
         LOG_INF("New round; station 1 ACTIVE (session=%u)", session_id);
@@ -872,17 +874,23 @@ static void process_beacon(const struct button_msg *msg)
         return;
     }
 
-    /* Accept activation only from our own round (or if we have not synced yet). */
+    /* Station 1 is activated by the gate station, whatever session it uses. Other stations accept
+     * activation only from our own round (or if we have not synced yet). */
+    bool from_gate = IS_ENABLED(CONFIG_HALLOWEEN_GATE) && STATION_ID == 1 && msg->source == GATE_ID;
+
     if (msg->type == MSG_ACTIVATE &&
         msg->target == STATION_ID &&
-        (STATION_ID != 1 || IS_ENABLED(CONFIG_HALLOWEEN_TEST_PINGPONG)) &&
+        (STATION_ID != 1 || IS_ENABLED(CONFIG_HALLOWEEN_TEST_PINGPONG) || from_gate) &&
         (state == ST_WAITING ||
          (IS_ENABLED(CONFIG_HALLOWEEN_TEST_PINGPONG) && state == ST_COMPLETED)) &&
-        (session_id == 0 || msg->session == session_id)) {
-        session_id = msg->session;
+        (from_gate || session_id == 0 || msg->session == session_id)) {
+        if (!from_gate || session_id == 0) {
+            session_id = msg->session;
+        }
         if (session_id == 0) {
             session_id = 1;
         }
+        new_round_until_ms = 0;
         state = ST_ACTIVE;
         activation_acked = false;
         set_led(true);
