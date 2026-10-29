@@ -28,15 +28,10 @@ config HALLOWEEN_GATE_PLAYER
     range 1 9
     default 1
 
-config HALLOWEEN_GATE_WELCOME_FIRST
-    int "First welcome track (a random track FIRST..LAST is played)"
+config HALLOWEEN_GATE_WELCOME_TRACK
+    int "Welcome/instructions track played when kids arrive"
     range 1 255
     default 10
-
-config HALLOWEEN_GATE_WELCOME_LAST
-    int "Last welcome track"
-    range 1 255
-    default 14
 
 config HALLOWEEN_GATE_WAIT_FIRST
     int "First wait track, played on motion while a game runs (0 = none)"
@@ -51,7 +46,7 @@ config HALLOWEEN_GATE_WAIT_LAST
 config HALLOWEEN_GATE_WELCOME_SECONDS
     int "Length of the welcome track; station 1 is activated this long after it starts"
     range 1 300
-    default 10
+    default 45
 
 config HALLOWEEN_GATE_WAIT_COOLDOWN_SECONDS
     int "Minimum time between two wait tracks"

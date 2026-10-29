@@ -110,8 +110,8 @@ The gate station (Pro Micro nRF52840 + PIR sensor, `src/gate.c`, built with `sta
 from a music player (`CONFIG_HALLOWEEN_GATE_PLAYER`, default 1; the player must be in range of the gate or of a station
 that relays).
 
-1. **Idle:** motion starts a random welcome track (`CONFIG_HALLOWEEN_GATE_WELCOME_FIRST..LAST`, default 10-14) on the music player.
-2. **Welcome:** `CONFIG_HALLOWEEN_GATE_WELCOME_SECONDS` (default 10, set it to the length of the welcome tracks) later the gate
+1. **Idle:** motion starts the welcome track (`CONFIG_HALLOWEEN_GATE_WELCOME_TRACK`, default 10) on the music player.
+2. **Welcome:** `CONFIG_HALLOWEEN_GATE_WELCOME_SECONDS` (default 10, set it to the length of the welcome track) later the gate
    sends `MSG_ACTIVATE` (source 6, target 1) until station 1 answers that it is active (60 s at most). Station 1 accepts it
    regardless of session and keeps the session it got from the last `MSG_NEW_ROUND`.
 3. **Running:** motion plays a random wait track (`CONFIG_HALLOWEEN_GATE_WAIT_FIRST..LAST`, default 15-18, at most one per

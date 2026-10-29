@@ -49,8 +49,6 @@ LOG_MODULE_REGISTER(halloween_gate, LOG_LEVEL_INF);
 #define GAME_TIMEOUT_MS ((int64_t)CONFIG_HALLOWEEN_GATE_GAME_TIMEOUT_MINUTES * 60000)
 #define PLAYER_TARGET (MUSIC_PLAYER_TARGET_BASE + CONFIG_HALLOWEEN_GATE_PLAYER)
 
-BUILD_ASSERT(CONFIG_HALLOWEEN_GATE_WELCOME_LAST >= CONFIG_HALLOWEEN_GATE_WELCOME_FIRST,
-             "welcome track range is empty");
 BUILD_ASSERT(CONFIG_HALLOWEEN_GATE_WAIT_LAST >= CONFIG_HALLOWEEN_GATE_WAIT_FIRST,
              "wait track range is empty");
 
@@ -222,7 +220,7 @@ static void start_welcome(void)
     motion_during_round = false;
     next_welcome_ms = 0;
     set_state(GATE_WELCOME);
-    play_on_player(random_track(CONFIG_HALLOWEEN_GATE_WELCOME_FIRST, CONFIG_HALLOWEEN_GATE_WELCOME_LAST));
+    play_on_player(CONFIG_HALLOWEEN_GATE_WELCOME_TRACK);
     LOG_INF("Welcome; activating station 1 in %d s", CONFIG_HALLOWEEN_GATE_WELCOME_SECONDS);
 }
 
@@ -416,7 +414,19 @@ int main(void)
             start_welcome();
         }
 
-        if (now >= PIR_WARMUP_MS && gpio_pin_get_dt(&pir) > 0) {
+        int pir_level = gpio_pin_get_dt(&pir);
+        static int last_pir_level = -1;
+        static bool warmup_logged;
+
+        if (pir_level != last_pir_level) {
+            last_pir_level = pir_level;
+            LOG_INF("PIR level %d%s", pir_level, now < PIR_WARMUP_MS ? " (ignored, warming up)" : "");
+        }
+        if (now >= PIR_WARMUP_MS && !warmup_logged) {
+            warmup_logged = true;
+            LOG_INF("PIR warm-up done; motion is now detected");
+        }
+        if (now >= PIR_WARMUP_MS && pir_level > 0) {
             motion_detected(now);
         }
 
