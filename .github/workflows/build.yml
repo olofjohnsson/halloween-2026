@@ -78,8 +78,50 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
+  music-player:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        player: [player1, player2, player3]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ hashFiles('music-player/platformio.ini') }}
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Build
+        run: pio run -d music-player -e ${{ matrix.player }}
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p out/for-flashing
+          b="music-player/.pio/build/${{ matrix.player }}"
+          # Flash at 0x0 (bootloader), 0x8000 (partitions), 0x10000 (app)
+          cp "$b/bootloader.bin" "out/for-flashing/music-${{ matrix.player }}-bootloader.bin"
+          cp "$b/partitions.bin" "out/for-flashing/music-${{ matrix.player }}-partitions.bin"
+          cp "$b/firmware.bin" "out/for-flashing/music-${{ matrix.player }}-app.bin"
+
+      # Intermediate artifact, only used by the package job below
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-music-${{ matrix.player }}
+          path: out/
+          retention-days: 1
+          if-no-files-found: error
+
   package:
-    needs: build
+    needs: [build, music-player]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
