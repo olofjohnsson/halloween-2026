@@ -1,16 +1,22 @@
 # halloween-2026
 
 A Halloween game for kids: solve a chain of puzzles to earn candy. Five puzzle stations
-talk to each other over Bluetooth LE. When the final code is entered, a candy dispenser
-on the balcony releases a handful of candy for the kids to share.
+talk to each other over Bluetooth LE. A skeleton at the entrance (the **gate**) greets the kids
+and explains the game when they arrive. When the final code is entered, a candy dispenser
+on the balcony releases a handful of candy for the kids to share. The dispenser reports each
+release over Wi-Fi to a small **candy counter server** that shows a live count.
 
 ## How it works
 
+0. The **gate** is a skeleton with a PIR motion sensor. When kids arrive it plays a welcome
+   and the instructions on a music player, then activates station 1. If more kids show up while
+   a game is running it plays a "please wait" track (rate limited) and greets them once the round ends.
 1. **Stations 1-4** each ask a question with three answer buttons. A correct answer
    makes the station celebrate with its LED and activates the next station.
 2. **Station 5** shows a random six-digit code on an LCD (the LCD is off while the station is waiting). The kids type it on a keypad.
 3. On a correct code, station 5 asks the **candy dispenser** to release a handful of candy.
-4. The dispenser confirms, station 5 starts a new round, and all stations reset.
+4. The dispenser reports the release to the counter server (over Wi-Fi), confirms, station 5 starts a new round, and all stations reset. Station 1 then
+   waits for the gate to detect new arrivals before the next game starts.
 
 All communication is BLE advertising (no pairing, no wiring between stations).
 It is meant for a supervised game, not for security.
@@ -19,8 +25,9 @@ It is meant for a supervised game, not for security.
 
 | Folder | Description |
 |--------|-------------|
-| [`stations/`](stations/README.md) | Firmware for the five puzzle stations (Pro Micro nRF52840; station 5 can also run on an nRF52840 DK for testing), including the BLE protocol and per-station config (`station_N.conf`). |
+| [`stations/`](stations/README.md) | Firmware for the gate skeleton (`station_gate.conf`: PIR sensor, welcome/instructions/wait tracks) and the five puzzle stations (Pro Micro nRF52840; station 5 can also run on an nRF52840 DK for testing), including the BLE protocol and per-station config (`station_N.conf`). |
 | [`candy-dispenser/`](candy-dispenser/README.md) | Firmware for the candy dispenser (nRF7002 DK, with a Pro Micro alternative). |
+| [`server/`](server/README.md) | Candy counter server (Flask, e.g. on a Synology NAS). The dispenser posts each release to it; it serves a live count page and a reset endpoint. |
 | [`music-player/`](music-player/README.md) | Music/scary-noise player (ESP32-C3 Super Mini + DFPlayer Mini, PlatformIO). Stations start tracks on it over BLE; each player has its own ID. |
 | [`tests/release-tester/`](tests/release-tester/README.md) | nRF52840 DK app that fakes station 5 (Button 1 requests a candy release) for testing the dispenser. |
 | [`tests/keypad-tester/`](tests/keypad-tester/README.md) | nRF52840 DK app that logs every key press of the station 5 keypad. |
@@ -32,7 +39,7 @@ It is meant for a supervised game, not for security.
 
 ## Getting started
 
-Both projects are Zephyr applications built with the nRF Connect SDK (NCS) 3.4.0 and `west`.
+The firmware projects are Zephyr applications built with the nRF Connect SDK (NCS) 3.4.0 and `west`.
 From the NCS toolchain environment:
 
 ```sh
@@ -41,6 +48,9 @@ cd stations
 west build -b promicro_nrf52840/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_1.conf
 west flash
 
+# The gate (PIR skeleton at the entrance)
+west build -b promicro_nrf52840/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_gate.conf
+
 # Station 5 on an nRF52840 DK instead (for testing)
 west build -b nrf52840dk/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_5.conf
 
@@ -48,6 +58,10 @@ west build -b nrf52840dk/nrf52840 -p always . -- -DEXTRA_CONF_FILE=station_5.con
 cd candy-dispenser
 west build -b nrf7002dk/nrf5340/cpuapp -p always .
 west flash
+
+# The candy counter server (set the same API key in candy-dispenser/wifi_secrets.conf)
+cd server
+API_KEY="your-secret" PORT=8080 ./run.sh
 ```
 
 See the folder READMEs for pin assignments, wiring notes, and troubleshooting.
