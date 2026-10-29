@@ -451,11 +451,11 @@ static void set_led(bool on)
 }
 
 /* Non-blocking lightning on the station LED while ACTIVE: a stuttering intro when the station
- * activates that settles to steady on, then sporadic bursts at random intervals. Every burst has an
- * even number of toggles, so it always ends with the LED on. */
+ * activates that settles to off, then sporadic bursts at random intervals. Every burst has an
+ * even number of toggles, so it always ends with the LED off (saves battery between bursts). */
 #define LIGHTNING_INTRO_TOGGLES 14
-#define LIGHTNING_GAP_MIN_MS 3000
-#define LIGHTNING_GAP_MAX_MS 12000
+#define LIGHTNING_GAP_MIN_MS 1000
+#define LIGHTNING_GAP_MAX_MS 4000
 
 static uint8_t lightning_toggles_left;
 static bool lightning_level;
@@ -481,7 +481,7 @@ static void lightning_cancel(void)
 static void lightning_begin(uint8_t toggles)
 {
     lightning_toggles_left = toggles;
-    lightning_level = true;
+    lightning_level = false;
     lightning_next_ms = 0; /* toggle at once */
     lightning_burst_at_ms = 0;
     LOG_INF("Lightning: %u toggles", toggles);
@@ -523,7 +523,7 @@ static void lightning_update(void)
                                                                 : lightning_rnd(30, 200));
         }
     } else if (lightning_burst_at_ms != 0 && now >= lightning_burst_at_ms) {
-        lightning_begin((uint8_t)(2U * lightning_rnd(1, 4)));
+        lightning_begin((uint8_t)(2U * lightning_rnd(3, 8)));
     }
 }
 
@@ -537,9 +537,10 @@ static void flash_led(unsigned int count, int on_ms, int off_ms)
         k_msleep(off_ms);
     }
     if (state == ST_ACTIVE) {
-        set_led(true);
         if (IS_ENABLED(CONFIG_HALLOWEEN_LIGHTNING)) {
             lightning_schedule_burst();
+        } else {
+            set_led(true);
         }
     }
 }
