@@ -21,6 +21,26 @@ release over Wi-Fi to a small **candy counter server** that shows a live count.
 All communication is BLE advertising (no pairing, no wiring between stations).
 It is meant for a supervised game, not for security.
 
+## Sounds around the garden
+
+Each station triggers sound for three events: when it becomes **active**, on a **wrong answer**
+and on a **correct answer** (station 5 does the same for a wrong or correct code). Every
+station can play on its own DFPlayer and also ask a **music player** elsewhere in the garden to play a
+track, so the sound comes from the place where the next puzzle is, not only from the station itself:
+
+- **Activation:** the next station lights up and a track starts on its configured music player,
+  e.g. a spooky cue that tells the kids where to go next.
+- **Wrong answer:** a "wrong" track plays on the music player and the answer buttons are
+  locked for a few seconds while it plays.
+- **Correct answer:** a celebration track plays. The next station is not activated until the
+  celebration is over, so the activation sound never cuts it off.
+
+The request is a `MSG_PLAY_TRACK` BLE message addressed to a player ID (1-9), which the
+stations relay so players out of direct range still hear it. Which player and track each station
+uses is set per station in `station_N.conf` (`CONFIG_HALLOWEEN_REMOTE_*`); see
+[`stations/`](stations/README.md) and [`music-player/`](music-player/README.md). The gate uses
+the same mechanism for its welcome, instructions and wait tracks.
+
 ## Repository layout
 
 | Folder | Description |
