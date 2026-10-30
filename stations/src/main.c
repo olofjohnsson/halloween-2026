@@ -1127,9 +1127,9 @@ static void handle_key(char key)
                 state = ST_RELEASING;
                 release_started_ms = k_uptime_get();
                 /* The correct-code track shares the beacon slot, so the release request follows it. */
-                dfplayer_play(CONFIG_HALLOWEEN_CORRECT_TRACK);
-                if (CONFIG_HALLOWEEN_REMOTE_CORRECT_TRACK > 0) {
-                    send_remote_track(CONFIG_HALLOWEEN_REMOTE_CORRECT_TRACK);
+                dfplayer_play(CONFIG_HALLOWEEN_CODE_CORRECT_TRACK);
+                if (CONFIG_HALLOWEEN_REMOTE_CODE_CORRECT_TRACK > 0) {
+                    send_remote_track(CONFIG_HALLOWEEN_REMOTE_CODE_CORRECT_TRACK);
                     release_pending = true;
                 } else {
                     update_beacon(MSG_RELEASE_CANDY, DISPENSER_ID, CONFIG_HALLOWEEN_DISPENSER_TRACK);

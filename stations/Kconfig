@@ -127,6 +127,13 @@ config HALLOWEEN_CORRECT_TRACK
     range 0 255
     default 0
 
+config HALLOWEEN_CODE_CORRECT_TRACK
+    int "Station 5: track to play on this station when the correct code is typed (0 = none)"
+    range 0 255
+    default 0
+    help
+      Separate from HALLOWEEN_CORRECT_TRACK, which is used for the correct button press.
+
 config HALLOWEEN_CELEBRATION_SECONDS
     int "Seconds the correct-answer music plays before the next station is activated"
     range 0 120
@@ -185,6 +192,13 @@ config HALLOWEEN_REMOTE_CORRECT_TRACK
     int "Track sent to the remote player/target when the correct button is pressed (0 = none)"
     range 0 255
     default 0
+
+config HALLOWEEN_REMOTE_CODE_CORRECT_TRACK
+    int "Station 5: track sent to the remote player/target when the correct code is typed (0 = none)"
+    range 0 255
+    default 0
+    help
+      Separate from HALLOWEEN_REMOTE_CORRECT_TRACK, which is used for the correct button press.
 
 config HALLOWEEN_REMOTE_DELAYED_TRACK
     int "Track sent to the remote player/target some seconds after the correct button (0 = none)"

@@ -260,11 +260,13 @@ Options in `station_N.conf`:
 | `CONFIG_HALLOWEEN_DFPLAYER_VOLUME` | volume 0-30 (default 20) |
 | `CONFIG_HALLOWEEN_ACTIVE_TRACK` | played on this station when it becomes active |
 | `CONFIG_HALLOWEEN_CORRECT_TRACK` | played on this station on a correct answer |
+| `CONFIG_HALLOWEEN_CODE_CORRECT_TRACK` | station 5: played on this station when the correct code is typed on the keypad |
 | `CONFIG_HALLOWEEN_NEXT_STATION_TRACK` | sent with the activation: the next station plays it when activated |
 | `CONFIG_HALLOWEEN_REMOTE_TRACK` + `CONFIG_HALLOWEEN_REMOTE_TARGET` | when this station becomes active, start that track on another station (1-5) or the dispenser (0) via `MSG_PLAY_TRACK` |
 | `CONFIG_HALLOWEEN_REMOTE_PLAYER` | if 1-9, send `CONFIG_HALLOWEEN_REMOTE_TRACK` to music player N instead of `CONFIG_HALLOWEEN_REMOTE_TARGET` |
 | `CONFIG_HALLOWEEN_REMOTE_WRONG_TRACK` | sent to the same player/target when a wrong button is pressed |
 | `CONFIG_HALLOWEEN_REMOTE_CORRECT_TRACK` | sent to the same player/target when the correct button is pressed |
+| `CONFIG_HALLOWEEN_REMOTE_CODE_CORRECT_TRACK` | station 5: sent to the same player/target when the correct code is typed |
 | `CONFIG_HALLOWEEN_REMOTE_DELAYED_TRACK` + `CONFIG_HALLOWEEN_REMOTE_DELAYED_SECONDS` | sent that many seconds after the correct button (default 10 s); waits until the next station has acknowledged the activation, cancelled on a new round |
 | `CONFIG_HALLOWEEN_DISPENSER_TRACK` | station 5: track the dispenser plays on a candy release |
 
