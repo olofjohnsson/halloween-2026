@@ -142,6 +142,14 @@ config HALLOWEEN_WRONG_TIMEOUT_SECONDS
     range 0 120
     default 5
 
+config HALLOWEEN_NEW_ROUND_DELAY_SECONDS
+    int "Station 5: seconds after the correct code before the new round starts"
+    range 0 300
+    default 40
+    help
+      The candy is released at the start of the celebration; the new round waits until the
+      finale is over, even if the dispenser confirms earlier.
+
 config HALLOWEEN_NEXT_STATION_TRACK
     int "Track the next station plays when this station activates it (0 = none)"
     range 0 255

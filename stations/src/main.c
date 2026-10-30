@@ -214,6 +214,8 @@ static bool code_hidden;
 static bool activation_acked;
 static int64_t activation_at_ms; /* 0 = none pending; the activation beacon starts once the celebration music is over */
 static int64_t celebration_end_ms;
+static int64_t release_started_ms;
+static int64_t new_round_at_ms; /* station 5: 0 = none; the new round waits until the finale is over */
 static int64_t input_locked_until_ms; /* wrong-answer timeout: input is ignored until then */
 
 #define INPUT_LOCKED() (k_uptime_get() < input_locked_until_ms)
@@ -675,6 +677,7 @@ static void begin_round(uint16_t session)
     activation_acked = false;
     activation_at_ms = 0;
     input_locked_until_ms = 0;
+    new_round_at_ms = 0;
     delayed_track_at_ms = 0;
     release_pending = false;
     status_text = NULL;
@@ -851,8 +854,12 @@ static void process_beacon(const struct button_msg *msg)
         msg->source == DISPENSER_ID &&
         msg->target == LAST_STATION_ID &&
         msg->session == session_id) {
-        LOG_INF("Dispenser confirmed candy release");
-        announce_new_round();
+        if (new_round_at_ms == 0) {
+            new_round_at_ms = MAX(release_started_ms + CONFIG_HALLOWEEN_NEW_ROUND_DELAY_SECONDS * 1000,
+                                  k_uptime_get());
+            LOG_INF("Dispenser confirmed candy release; new round in %d ms",
+                    (int)(new_round_at_ms - k_uptime_get()));
+        }
         return;
     }
 
@@ -1118,6 +1125,7 @@ static void handle_key(char key)
                 final_code = 0;
                 clear_entry();
                 state = ST_RELEASING;
+                release_started_ms = k_uptime_get();
                 /* The correct-code track shares the beacon slot, so the release request follows it. */
                 dfplayer_play(CONFIG_HALLOWEEN_CORRECT_TRACK);
                 if (CONFIG_HALLOWEEN_REMOTE_CORRECT_TRACK > 0) {
@@ -1446,6 +1454,10 @@ int main(void)
                 now >= status_until_ms) {
                 status_text = NULL;
                 lcd_show_final();
+            }
+            if (new_round_at_ms != 0 && now >= new_round_at_ms) {
+                new_round_at_ms = 0;
+                announce_new_round();
             }
             /* Stop announcing the new round after a while. */
             if (new_round_until_ms != 0 && now >= new_round_until_ms) {

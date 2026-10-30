@@ -181,6 +181,7 @@ reflashing.
 - When the next station has activated and answers with the same session, the previous station stops advertising the activation (acknowledge), so a rebooted station cannot be re-activated by an old beacon.
 - Station 5 (LCD + keypad) generates a random six-digit code (never containing 4, 5 or 6, since those keypad keys are broken) and shows it for `CONFIG_HALLOWEEN_CODE_DISPLAY_SECONDS` (default 15 s, 0 = always), then hides it. The kids type it on the keypad: digits are shown on the LCD, `*` clears, `#` submits (`WRONG CODE!` / `NEED 6 DIGITS` on errors). The code never leaves station 5.
 - On a correct code station 5 advertises `MSG_RELEASE_CANDY`; the dispenser (balcony, no cables to station 5) releases some candy and answers with `MSG_CANDY_DONE`.
+- The candy is released at the start of the station 5 celebration, but station 5 waits until `CONFIG_HALLOWEEN_NEW_ROUND_DELAY_SECONDS` (default 40) after the correct code before the new round, so the finale can finish.
 - Station 5 then broadcasts `MSG_NEW_ROUND` with a new session for 60 s. All stations reset and wait: with the gate station, station 1 stays waiting until the gate detects new arrivals and activates it; without it (`CONFIG_HALLOWEEN_GATE=n`) station 1 becomes active at once.
 
 ### Station 5 wiring (Pro Micro)
@@ -243,6 +244,7 @@ in a folder named `MP3` (`/MP3/0001.mp3`); the track number is the file name num
 | `0023.mp3` | rätt svar 5 klassisk fanfar med trummor o trumpet (kraftigt pampig)|
 | `0024.mp3` | do you see the light (Blues Brothers) |
 | `0025.mp3` | följ ljuset inte bruset |
+| `0026.mp3` | addams family |
 
 ## LED lightning
 
