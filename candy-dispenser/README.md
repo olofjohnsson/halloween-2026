@@ -22,6 +22,13 @@ The actuator output is a logic signal only; use a suitable transistor/MOSFET or
 motor/solenoid driver and a separate supply. Never connect a solenoid or motor
 directly to an nRF GPIO.
 
+## Flasher (MOSFET)
+A second GPIO (`flasher` node in the board overlay: P0.20 on the Pro Micro, P1.07 on the nRF7002 DK)
+drives a MOSFET gate. It starts flashing when a candy release starts and keeps flashing for
+`CONFIG_HALLOWEEN_FLASH_SECONDS` (default 40; set it to the length of the final celebration song),
+with period `CONFIG_HALLOWEEN_FLASH_PERIOD_MS`. The dispenser cannot detect the end of the song, so
+the duration is fixed. Verify the pin for your board and never drive a load directly from the GPIO.
+
 ## nRF7002 DK
 Build for the app core (sysbuild automatically adds the BLE `hci_ipc` net-core image):
 

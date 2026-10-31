@@ -25,6 +25,8 @@ LOG_MODULE_REGISTER(candy, LOG_LEVEL_INF);
 #define MSG_RELEASE_CANDY 4 /* station 5 -> dispenser */
 #define MSG_CANDY_DONE 7    /* dispenser -> station 5 */
 #define MSG_PLAY_TRACK 8    /* any station -> dispenser: play a track */
+#define MSG_RUN_DISC 9      /* remote control: turn the disc while this keeps arriving */
+#define RUN_DISC_TIMEOUT_MS 500
 #define LAST_STATION_ID 5
 #define DISPENSER_ID 0
 
@@ -49,6 +51,13 @@ static const struct gpio_dt_spec disc_switch =
 #define HAS_DISC_SWITCH 0
 #endif
 
+#if DT_NODE_EXISTS(DT_NODELABEL(flasher))
+#define HAS_FLASHER 1
+static const struct gpio_dt_spec flasher = GPIO_DT_SPEC_GET(DT_NODELABEL(flasher), gpios);
+#else
+#define HAS_FLASHER 0
+#endif
+
 /* Value field: bits 0..15 = DFPlayer track (0 = none), bits 16..23 = sequence (MSG_PLAY_TRACK). */
 struct release_request {
     uint8_t type;
@@ -70,7 +79,20 @@ static uint8_t last_play_seq[LAST_STATION_ID + 1];
 /* BLE scan callback runs outside the main thread; queue requests for it. */
 K_MSGQ_DEFINE(release_msgq, sizeof(struct release_request), 4, 4);
 
-static uint16_t last_released_session;
+#define SESSION_HISTORY 8
+/* Recent sessions: delayed copies of an old request (e.g. relayed by a station) must not release again. */
+static uint16_t released_sessions[SESSION_HISTORY];
+static size_t released_next;
+
+static bool session_released(uint16_t session)
+{
+    for (size_t i = 0; i < SESSION_HISTORY; i++) {
+        if (released_sessions[i] == session) {
+            return true;
+        }
+    }
+    return false;
+}
 
 static uint8_t service_data[SERVICE_DATA_LEN];
 static const uint8_t adv_flags = BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR;
@@ -125,7 +147,8 @@ static bool parse_service_data(struct bt_data *data, void *user_data)
         return true;
     }
     if (!(p[3] == MSG_RELEASE_CANDY && p[5] == LAST_STATION_ID) &&
-        !(p[3] == MSG_PLAY_TRACK && p[5] >= 1 && p[5] <= LAST_STATION_ID)) {
+        !(p[3] == MSG_PLAY_TRACK && p[5] >= 1 && p[5] <= LAST_STATION_ID) &&
+        !(p[3] == MSG_RUN_DISC && p[5] == LAST_STATION_ID)) {
         return true;
     }
 
@@ -191,6 +214,38 @@ static bool release_candy(void)
     return ok;
 }
 
+#if HAS_FLASHER
+#define FLASH_HALF_PERIOD_MS (CONFIG_HALLOWEEN_FLASH_PERIOD_MS / 2)
+
+static struct k_work_delayable flash_work;
+static int64_t flash_end_ms;
+static bool flash_on;
+
+static void flash_handler(struct k_work *work)
+{
+    if (k_uptime_get() >= flash_end_ms) {
+        flash_on = false;
+        (void)gpio_pin_set_dt(&flasher, 0);
+        return;
+    }
+    flash_on = !flash_on;
+    (void)gpio_pin_set_dt(&flasher, flash_on);
+    k_work_reschedule(&flash_work, K_MSEC(FLASH_HALF_PERIOD_MS));
+}
+
+/* Flash for the length of the final celebration song, starting now. */
+static void flash_start(void)
+{
+    flash_end_ms = k_uptime_get() + CONFIG_HALLOWEEN_FLASH_SECONDS * 1000;
+    flash_on = false;
+    k_work_reschedule(&flash_work, K_NO_WAIT);
+}
+#else
+static inline void flash_start(void)
+{
+}
+#endif
+
 #if DISC_TEST && HAS_DISC_SWITCH
 static void disc_test_thread(void *a, void *b, void *c)
 {
@@ -216,6 +271,15 @@ int main(void)
         LOG_ERR("Actuator GPIO setup failed: %d", rc);
         return 0;
     }
+
+#if HAS_FLASHER
+    rc = gpio_pin_configure_dt(&flasher, GPIO_OUTPUT_INACTIVE);
+    if (rc < 0) {
+        LOG_ERR("Flasher GPIO setup failed: %d", rc);
+        return 0;
+    }
+    k_work_init_delayable(&flash_work, flash_handler);
+#endif
 
 #if HAS_DISC_SWITCH
     rc = gpio_pin_configure_dt(&disc_switch, GPIO_INPUT);
@@ -260,6 +324,18 @@ int main(void)
             continue;
         }
 
+        /* Manual mode: the disc turns as long as the remote's beacons keep coming. */
+        if (req.type == MSG_RUN_DISC) {
+            LOG_INF("Remote: turning the disc");
+            (void)gpio_pin_set_dt(&actuator, 1);
+            while (k_msgq_get(&release_msgq, &req, K_MSEC(RUN_DISC_TIMEOUT_MS)) == 0) {
+                /* Each message restarts the timeout; other messages are dropped meanwhile. */
+            }
+            (void)gpio_pin_set_dt(&actuator, 0);
+            LOG_INF("Remote: disc stopped");
+            continue;
+        }
+
         /* Beacons repeat, so play each requested sequence once. */
         if (req.type == MSG_PLAY_TRACK) {
             if (req.seq != last_play_seq[req.source]) {
@@ -272,12 +348,15 @@ int main(void)
 
         /* Station 5 repeats its request until it hears the confirmation, so
          * release only once per session and keep confirming it. */
-        if (req.session != last_released_session) {
+        if (!session_released(req.session)) {
             LOG_INF("Release requested (session=%u)", req.session);
+            /* Remember the session first: requests queued during the release must not repeat it. */
+            released_sessions[released_next] = req.session;
+            released_next = (released_next + 1) % SESSION_HISTORY;
             dfplayer_play(req.track);
+            flash_start();
             bool ok = release_candy();
 
-            last_released_session = req.session;
             if (ok) {
                 report_dispense(req.session);
             } else {

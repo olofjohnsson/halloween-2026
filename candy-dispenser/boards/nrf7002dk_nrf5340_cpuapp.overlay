@@ -3,6 +3,7 @@
  * nRF7002 DK (nRF5340 app core). All signals on the Arduino header (1.8 V logic).
  * Candy driver output: P1.06 = LED1, D4 (active-low, inverting transistor stage)
  * Disc switch      : P1.03 (active-low, pull-up)
+ * Flasher MOSFET    : P1.07 = LED2, D5 (active-low, inverting stage)
  */
 
 / {
@@ -16,6 +17,13 @@
         compatible = "candy,gpio";
         gpios = <&gpio1 6 GPIO_ACTIVE_LOW>; /* inverting transistor stage */
         label = "Candy release driver";
+    };
+
+    /* MOSFET gate that flashes during the final song. */
+    flasher: flasher {
+        compatible = "candy,gpio";
+        gpios = <&gpio1 7 GPIO_ACTIVE_LOW>; /* inverting stage, like the candy driver */
+        label = "Flasher MOSFET";
     };
 };
 

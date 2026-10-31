@@ -35,6 +35,23 @@ config HALLOWEEN_REPORT_TEST
 
 endmenu
 
+menu "Candy dispenser flasher"
+
+config HALLOWEEN_FLASH_SECONDS
+    int "Seconds the flasher output flashes after a candy release"
+    range 1 600
+    default 40
+    help
+      Set this to the length of the final celebration song. Used only when the board
+      overlay has a flasher node (MOSFET output).
+
+config HALLOWEEN_FLASH_PERIOD_MS
+    int "Flash period in milliseconds (on + off)"
+    range 20 10000
+    default 500
+
+endmenu
+
 menu "Candy dispenser sound"
 
 config HALLOWEEN_DFPLAYER

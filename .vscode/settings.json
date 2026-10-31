@@ -1,6 +1,7 @@
 {
     "nrf-connect.applications": [
         "${workspaceFolder}/candy-dispenser",
-        "${workspaceFolder}/stations"
+        "${workspaceFolder}/stations",
+        "${workspaceFolder}/remote-control"
     ]
 }

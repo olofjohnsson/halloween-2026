@@ -49,6 +49,7 @@ the same mechanism for its welcome, instructions and wait tracks.
 | [`candy-dispenser/`](candy-dispenser/README.md) | Firmware for the candy dispenser (nRF7002 DK, with a Pro Micro alternative). |
 | [`server/`](server/README.md) | Candy counter server (Flask, e.g. on a Synology NAS). The dispenser posts each release to it; it serves a live count page and a reset endpoint. |
 | [`music-player/`](music-player/README.md) | Music/scary-noise player (ESP32-C3 Super Mini + DFPlayer Mini, PlatformIO). Stations start tracks on it over BLE; each player has its own ID. |
+| [`remote-control/`](remote-control/README.md) | nRF52840 DK remote control: Button 1 restarts the game, Button 2 dispenses candy. |
 | [`tests/release-tester/`](tests/release-tester/README.md) | nRF52840 DK app that fakes station 5 (Button 1 requests a candy release) for testing the dispenser. |
 | [`tests/keypad-tester/`](tests/keypad-tester/README.md) | nRF52840 DK app that logs every key press of the station 5 keypad. |
 | [`tests/lcd-tester/`](tests/lcd-tester/README.md) | nRF52840 DK app that scans I2C and exercises the station 5 LCD. |
