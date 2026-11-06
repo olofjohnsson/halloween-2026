@@ -6,6 +6,9 @@ and explains the game when they arrive. When the final code is entered, a candy 
 on the balcony releases a handful of candy for the kids to share. The dispenser reports each
 release over Wi-Fi to a small **candy counter server** that shows a live count.
 
+A little glimpse how it turned out :)
+https://youtu.be/d7PGgahPZz8?si=LspeJ7NY_Jh4V0Er
+
 ## How it works
 
 0. The **gate** is a skeleton with a PIR motion sensor. When kids arrive it plays a welcome
